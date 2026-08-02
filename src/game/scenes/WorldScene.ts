@@ -27,8 +27,8 @@ export default class WorldScene extends Phaser.Scene {
     this.overlay = new DebugOverlay(this);
     this.overlay.mount();
 
-    this.input.keyboard.on('keydown-ESC', () => this.scene.start('MenuScene'));
-    this.input.keyboard.on('keydown-S', async () => {
+    this.input.keyboard?.on('keydown-ESC', () => this.scene.start('MenuScene'));
+    this.input.keyboard?.on('keydown-S', async () => {
       await saveService.save({
         id: 'slot-1',
         label: 'Partida 1',
