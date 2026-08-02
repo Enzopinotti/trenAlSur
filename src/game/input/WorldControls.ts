@@ -18,6 +18,7 @@ export class WorldControls {
     right: Phaser.Input.Keyboard.Key;
     E: Phaser.Input.Keyboard.Key;
     G: Phaser.Input.Keyboard.Key;
+    F2: Phaser.Input.Keyboard.Key;
     ESC: Phaser.Input.Keyboard.Key;
   };
 
@@ -33,6 +34,7 @@ export class WorldControls {
       right: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
       E: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
       G: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G),
+      F2: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F2),
       ESC: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
     };
   }
@@ -69,6 +71,11 @@ export class WorldControls {
   justPressedSave(): boolean {
     if (this.isDestroyed || !this.keys) return false;
     return Phaser.Input.Keyboard.JustDown(this.keys.G);
+  }
+
+  justPressedToggleDebug(): boolean {
+    if (this.isDestroyed || !this.keys) return false;
+    return Phaser.Input.Keyboard.JustDown(this.keys.F2);
   }
 
   justPressedMenu(): boolean {

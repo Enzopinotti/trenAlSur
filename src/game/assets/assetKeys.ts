@@ -5,6 +5,7 @@ export const ASSET_KEYS = {
   affTerminalIdle: 'affTerminalIdle',
   affTerminalActive: 'affTerminalActive',
   affTerminalConfirmed: 'affTerminalConfirmed',
+  trainSouthCoach: 'trainSouthCoach',
 } as const;
 
 export const PLAYER_SPRITESHEET = {
@@ -27,4 +28,8 @@ export const AFF_TERMINAL_IMAGES = {
   idle: '/assets/stations/retiro/aff-terminal-idle.png',
   active: '/assets/stations/retiro/aff-terminal-active.png',
   confirmed: '/assets/stations/retiro/aff-terminal-confirmed.png',
+} as const;
+
+export const TRAIN_SOUTH_COACH_IMAGE = {
+  url: '/assets/trains/tren-al-sur/coach-exterior.png',
 } as const;

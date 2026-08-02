@@ -2,7 +2,7 @@ import mitt from 'mitt';
 import type { GameEvents } from '@/types/contracts';
 
 type Events = {
-  [K in GameEvents]?: any;
+  [K in GameEvents]?: unknown;
 };
 
 export const bus = mitt<Events>();

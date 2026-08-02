@@ -21,6 +21,10 @@ describe('depthFromFeet', () => {
 });
 
 describe('bandas de profundidad', () => {
+  it('ubica las estructuras ferroviarias detrás de entidades ordenadas por pies', () => {
+    expect(DEPTH.railwayStructure).toBeLessThan(DEPTH.worldSortedBase);
+  });
+
   it('ubica el HUD sobre las etiquetas del mundo', () => {
     expect(DEPTH.hud).toBeGreaterThan(DEPTH.worldLabels);
   });

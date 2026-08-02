@@ -2,13 +2,7 @@ import Phaser from 'phaser';
 import { ASSET_KEYS } from '@/game/assets/assetKeys';
 import { depthFromFeet } from '@/game/rendering/depth';
 import type { AffTerminalState } from './affTerminal.types';
-
-const TERMINAL_SCALE = 0.72;
-const BODY_WIDTH = 48;
-const BODY_HEIGHT = 14;
-const BODY_OFFSET_X = (96 - BODY_WIDTH) / 2;
-const BODY_OFFSET_Y = 128 - BODY_HEIGHT;
-const INTERACTION_OFFSET_Y = 26;
+import type { StaticWorldEntityConfig } from './worldEntity.types';
 
 const TEXTURE_BY_STATE: Record<AffTerminalState, string> = {
   idle: ASSET_KEYS.affTerminalIdle,
@@ -18,20 +12,28 @@ const TEXTURE_BY_STATE: Record<AffTerminalState, string> = {
 
 export class AffTerminal extends Phaser.Physics.Arcade.Sprite {
   private currentTerminalState: AffTerminalState = 'idle';
+  private readonly interactionOffsetY: number;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    config: StaticWorldEntityConfig,
+  ) {
     super(scene, x, y, ASSET_KEYS.affTerminalIdle);
 
     scene.add.existing(this);
     scene.physics.add.existing(this, true);
 
-    this.setScale(TERMINAL_SCALE);
+    this.setScale(config.scale);
     this.setOrigin(0.5, 1);
 
     const body = this.body as Phaser.Physics.Arcade.StaticBody;
-    body.setSize(BODY_WIDTH, BODY_HEIGHT);
-    body.setOffset(BODY_OFFSET_X, BODY_OFFSET_Y);
+    body.setSize(config.body.width, config.body.height);
+    body.setOffset(config.body.offsetX, config.body.offsetY);
     this.refreshBody();
+
+    this.interactionOffsetY = config.interactionOffsetY ?? 0;
 
     this.setDepth(depthFromFeet(this.y));
   }
@@ -50,7 +52,7 @@ export class AffTerminal extends Phaser.Physics.Arcade.Sprite {
   getInteractionPoint(): Readonly<{ x: number; y: number }> {
     return {
       x: this.x,
-      y: this.y + INTERACTION_OFFSET_Y,
+      y: this.y + this.interactionOffsetY,
     };
   }
 }

@@ -2,6 +2,7 @@ export const DEPTH = {
   background: -1000,
   ground: -900,
   structures: -500,
+  railwayStructure: -400,
   worldSortedBase: 0,
   worldLabels: 1000,
   hud: 2000,

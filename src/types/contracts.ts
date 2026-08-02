@@ -1,22 +1,26 @@
-export type Season = 'Primavera' | 'Verano' | 'Otoño' | 'Invierno';
+import type { Season } from '@/game/config';
+import type { TutorialStep } from '@/game/tutorial/retiroTutorial.types';
 
-export interface GameState {
-  version: number;
+export interface PlayerSavePosition {
+  x: number;
+  y: number;
+}
+
+export interface GameStateV2 {
+  version: 2;
   day: number;
   season: Season;
-  player?: {
-    x: number;
-    y: number;
-    name: string;
-  };
-  flags?: Record<string, boolean>;
+  tutorialStep: TutorialStep;
+  player: PlayerSavePosition;
 }
+
+export type GameState = GameStateV2;
 
 export interface SaveSlot {
   id: string;
   label: string;
   updatedAt: number;
-  state: GameState;
+  state: GameStateV2;
 }
 
 export interface SaveService {

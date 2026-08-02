@@ -18,9 +18,11 @@ export class DebugOverlay {
     const loop = this.scene.game.loop;
     const fps = Math.round(loop.actualFps);
     const count = this.scene.children.list.length;
-    const mem = (performance as any).memory?.usedJSHeapSize
-      ? (Number((performance as any).memory.usedJSHeapSize) / 1048576).toFixed(1) + ' MB'
-      : 'n/a';
+    const memory = Reflect.get(performance, 'memory');
+    const usedHeapSize = getUsedHeapSize(memory);
+    const mem = usedHeapSize === null
+      ? 'n/a'
+      : `${(usedHeapSize / 1048576).toFixed(1)} MB`;
 
     this.text.setText([
       `FPS: ${fps}`,
@@ -32,4 +34,12 @@ export class DebugOverlay {
   destroy() {
     this.text?.destroy();
   }
+}
+
+function getUsedHeapSize(memory: unknown): number | null {
+  if (!memory || typeof memory !== 'object') return null;
+  if (!('usedJSHeapSize' in memory)) return null;
+
+  const usedHeapSize = memory.usedJSHeapSize;
+  return typeof usedHeapSize === 'number' ? usedHeapSize : null;
 }
