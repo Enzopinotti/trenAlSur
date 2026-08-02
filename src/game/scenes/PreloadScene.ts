@@ -1,6 +1,11 @@
 import Phaser from 'phaser';
 import { emitToast } from '@/core/events/bus';
-import { ASSET_KEYS, PLAYER_SPRITESHEET } from '@/game/assets/assetKeys';
+import {
+  ASSET_KEYS,
+  PLAYER_SPRITESHEET,
+  FOREMAN_SPRITESHEET,
+  FOREMAN_PORTRAIT,
+} from '@/game/assets/assetKeys';
 
 export default class PreloadScene extends Phaser.Scene {
   private progressBox!: Phaser.GameObjects.Rectangle;
@@ -31,7 +36,7 @@ export default class PreloadScene extends Phaser.Scene {
       }).setOrigin(0.5);
     });
 
-    // Spritesheet del jugador — único asset real de esta etapa
+    // Spritesheet del jugador
     this.load.spritesheet(
       ASSET_KEYS.player,
       PLAYER_SPRITESHEET.url,
@@ -40,6 +45,19 @@ export default class PreloadScene extends Phaser.Scene {
         frameHeight: PLAYER_SPRITESHEET.frameHeight,
       }
     );
+
+    // Spritesheet del capataz
+    this.load.spritesheet(
+      ASSET_KEYS.foremanSprite,
+      FOREMAN_SPRITESHEET.url,
+      {
+        frameWidth: FOREMAN_SPRITESHEET.frameWidth,
+        frameHeight: FOREMAN_SPRITESHEET.frameHeight,
+      }
+    );
+
+    // Retrato del capataz
+    this.load.image(ASSET_KEYS.foremanPortrait, FOREMAN_PORTRAIT.url);
   }
 
   create() {

@@ -1,7 +1,7 @@
-export type DialogueSpeaker = 'Capataz' | 'AFF' | 'Narrador' | 'Sistema';
+export type DialogueActorId = 'foreman' | 'aff' | 'narrator' | 'system';
 
 export interface DialogueLine {
-  speaker: DialogueSpeaker;
+  actorId: DialogueActorId;
   text: string;
 }
 

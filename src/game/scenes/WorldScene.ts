@@ -5,6 +5,8 @@ import { bus } from '@/core/events/bus';
 import { saveService } from '@/core/save/SaveService';
 import { WorldControls } from '@/game/input/WorldControls';
 import { Player, registerPlayerAnimations } from '@/game/entities/Player';
+import { Foreman } from '@/game/entities/Foreman';
+import { DialoguePanel } from '@/game/ui/DialoguePanel';
 import {
   TutorialStep,
   InteractableId,
@@ -13,13 +15,10 @@ import {
   getRetiroObjective,
   transitionRetiroTutorial,
 } from '@/game/tutorial/RetiroTutorial';
-import type { DialogueSequence } from '@/game/dialogue/dialogue.types';
 
-// ── Constantes de posición predeterminada ──────────────────────────────────
 const DEFAULT_PLAYER_POSITION = { x: 250, y: 440 } as const;
 const PLAYER_SPEED = 190;
 
-// ── Interfaz de interactuables ─────────────────────────────────────────────
 interface InteractableObject {
   id: InteractableId;
   name: string;
@@ -32,6 +31,7 @@ export default class WorldScene extends Phaser.Scene {
   // Subsistemas
   private overlay!: DebugOverlay;
   private controls?: WorldControls;
+  private dialoguePanel!: DialoguePanel;
 
   // Estado de juego
   private day!: number;
@@ -41,14 +41,14 @@ export default class WorldScene extends Phaser.Scene {
     y: DEFAULT_PLAYER_POSITION.y,
   };
 
-  // Entidad jugador
+  // Entidades
   private player!: Player;
+  private foreman!: Foreman;
 
   // Grupos de físicas
   private obstacles!: Phaser.Physics.Arcade.StaticGroup;
 
   // Semantic references for future asset replacement
-  private foreman!: Phaser.GameObjects.Rectangle;
   private affBoard!: Phaser.GameObjects.Rectangle;
   private trainDoor!: Phaser.GameObjects.Rectangle;
   private trainBody!: Phaser.GameObjects.Rectangle;
@@ -59,19 +59,9 @@ export default class WorldScene extends Phaser.Scene {
   private interactables: InteractableObject[] = [];
   private currentTarget: InteractableObject | null = null;
 
-  // Estado del diálogo por páginas
-  private activeDialogue: DialogueSequence = [];
-  private dialogueIndex = 0;
-  private isDialogueOpen = false;
-
-  // UI (referenciadas para actualización posterior)
+  // UI
   private interactionPromptText!: Phaser.GameObjects.Text;
   private objectiveText!: Phaser.GameObjects.Text;
-  private dialogueContainer!: Phaser.GameObjects.Container;
-  private dialogueSpeakerText!: Phaser.GameObjects.Text;
-  private dialogueBodyText!: Phaser.GameObjects.Text;
-  private dialoguePageText!: Phaser.GameObjects.Text;
-  private dialogueHintText!: Phaser.GameObjects.Text;
 
   constructor() {
     super('WorldScene');
@@ -84,9 +74,6 @@ export default class WorldScene extends Phaser.Scene {
       ? { x: data.player.x, y: data.player.y }
       : { x: DEFAULT_PLAYER_POSITION.x, y: DEFAULT_PLAYER_POSITION.y };
     this.tutorialStep = TutorialStep.TALK_TO_FOREMAN;
-    this.isDialogueOpen = false;
-    this.activeDialogue = [];
-    this.dialogueIndex = 0;
   }
 
   create() {
@@ -96,7 +83,6 @@ export default class WorldScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     this.obstacles = this.physics.add.staticGroup();
 
-    // Registrar animaciones globalmente (solo si no existen)
     registerPlayerAnimations(this);
 
     this.createEnvironment(WORLD_WIDTH, WORLD_HEIGHT);
@@ -110,12 +96,15 @@ export default class WorldScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 
-    // Controles — validación explícita del plugin
+    // Controles — validación explícita
     const keyboard = this.input.keyboard;
     if (!keyboard) {
       throw new Error('[WorldScene] No se encontró el plugin de teclado (KeyboardPlugin) en la escena.');
     }
     this.controls = new WorldControls(keyboard);
+
+    // Componente de UI para diálogos
+    this.dialoguePanel = new DialoguePanel(this);
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
 
@@ -124,23 +113,23 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number) {
-    // 1. Menú (ESC) — corta el frame completo
+    // 1. Menú (ESC)
     if (this.controls?.justPressedMenu()) {
       this.scene.start('MenuScene');
       return;
     }
 
-    // 2. Guardado (G) y diálogo/interacción (E) son mutuamente exclusivos en el mismo frame
+    // 2. Guardado (G) o Interacción (E)
     if (this.controls?.justPressedSave()) {
       this.handleSave();
     } else if (this.controls?.justPressedInteract()) {
       this.interact();
     }
 
-    // 3. Movimiento
+    // 3. Movimiento (bloqueado durante diálogo)
     this.updateMovement();
 
-    // 4. Actualizar target interactuable
+    // 4. Target interactuable
     this.updateInteractionTarget();
 
     // 5. Debug overlay
@@ -210,15 +199,13 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   private createPlayer() {
-    // Placeholder futuro: reemplazado por sprite animado definitivo con tileset de Retiro
     this.player = new Player(this, this.initialPlayerPos.x, this.initialPlayerPos.y);
   }
 
   private createCharacters() {
-    // Placeholder futuro: sprite del NPC Capataz de cuadrilla
-    this.foreman = this.add.rectangle(240, 440, 32, 32, 0xb7094c);
+    // Entidad real Foreman (reemplaza rectángulo del capataz)
+    this.foreman = new Foreman(this, 240, 440);
     this.obstacles.add(this.foreman);
-    this.add.text(240, 410, 'CAPATAZ', { fontSize: '13px', color: '#ffd54a' }).setOrigin(0.5);
   }
 
   private createInteractables() {
@@ -234,7 +221,6 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   private createInterface() {
-    // Header fijo a cámara
     this.add.text(16, 16, `Andén de Retiro — Día ${this.day}`, {
       fontSize: '22px', color: '#ffffff',
       backgroundColor: 'rgba(0,0,0,0.5)',
@@ -254,48 +240,12 @@ export default class WorldScene extends Phaser.Scene {
       backgroundColor: '#111827',
       padding: { x: 12, y: 6 },
     }).setOrigin(0.5).setScrollFactor(0).setDepth(450).setVisible(false);
-
-    // Panel de diálogo paginado
-    this.dialogueContainer = this.add.container(400, 510).setScrollFactor(0).setDepth(500).setVisible(false);
-
-    const panelBg = this.add.rectangle(0, 0, 760, 130, 0x0f172a, 0.96);
-    panelBg.setStrokeStyle(2, 0x38bdf8);
-
-    // Nombre del hablante
-    this.dialogueSpeakerText = this.add.text(-365, -54, '', {
-      fontSize: '13px', color: '#38bdf8',
-      fontStyle: 'bold',
-    });
-
-    // Cuerpo del texto
-    this.dialogueBodyText = this.add.text(-365, -34, '', {
-      fontSize: '15px', color: '#f8fafc',
-      wordWrap: { width: 720 },
-    });
-
-    // Indicador "E — Continuar"
-    this.dialogueHintText = this.add.text(360, 46, 'E — Continuar', {
-      fontSize: '12px', color: '#94a3b8',
-    }).setOrigin(1, 1);
-
-    // Contador de páginas
-    this.dialoguePageText = this.add.text(-365, 46, '', {
-      fontSize: '12px', color: '#64748b',
-    }).setOrigin(0, 1);
-
-    this.dialogueContainer.add([
-      panelBg,
-      this.dialogueSpeakerText,
-      this.dialogueBodyText,
-      this.dialogueHintText,
-      this.dialoguePageText,
-    ]);
   }
 
   // ── Movimiento ─────────────────────────────────────────────────────────────
 
   private updateMovement() {
-    if (this.isDialogueOpen) {
+    if (this.dialoguePanel.isOpen) {
       this.player.freeze();
       return;
     }
@@ -313,7 +263,7 @@ export default class WorldScene extends Phaser.Scene {
   // ── Interacción ────────────────────────────────────────────────────────────
 
   private updateInteractionTarget() {
-    if (this.isDialogueOpen) {
+    if (this.dialoguePanel.isOpen) {
       this.interactionPromptText.setVisible(false);
       return;
     }
@@ -340,9 +290,8 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   private interact() {
-    if (this.isDialogueOpen) {
-      // Avanzar página o cerrar si es la última
-      this.advanceDialogue();
+    if (this.dialoguePanel.isOpen) {
+      this.dialoguePanel.advance();
       return;
     }
 
@@ -351,49 +300,13 @@ export default class WorldScene extends Phaser.Scene {
     const result = transitionRetiroTutorial(this.tutorialStep, this.currentTarget.id);
     this.tutorialStep = result.step;
     this.setObjective(result.objectiveText);
-    this.openDialogue(result.dialogue);
-  }
-
-  // ── Sistema de diálogo por páginas ────────────────────────────────────────
-
-  private openDialogue(sequence: DialogueSequence) {
-    if (sequence.length === 0) return;
-    this.activeDialogue = sequence;
-    this.dialogueIndex = 0;
-    this.isDialogueOpen = true;
-    this.dialogueContainer.setVisible(true);
-    this.interactionPromptText.setVisible(false);
-    this.renderCurrentPage();
-  }
-
-  private advanceDialogue() {
-    this.dialogueIndex += 1;
-    if (this.dialogueIndex >= this.activeDialogue.length) {
-      this.closeDialogue();
-    } else {
-      this.renderCurrentPage();
-    }
-  }
-
-  private renderCurrentPage() {
-    const line = this.activeDialogue[this.dialogueIndex];
-    if (!line) return;
-    this.dialogueSpeakerText.setText(line.speaker);
-    this.dialogueBodyText.setText(line.text);
-    this.dialoguePageText.setText(`${this.dialogueIndex + 1} / ${this.activeDialogue.length}`);
-  }
-
-  private closeDialogue() {
-    this.dialogueContainer.setVisible(false);
-    this.isDialogueOpen = false;
-    this.activeDialogue = [];
-    this.dialogueIndex = 0;
+    this.dialoguePanel.open(result.dialogue);
   }
 
   // ── Guardado ───────────────────────────────────────────────────────────────
 
   private async handleSave() {
-    if (this.isDialogueOpen) return;
+    if (this.dialoguePanel.isOpen) return;
     try {
       await saveService.save({
         id: 'slot-1',
@@ -424,6 +337,7 @@ export default class WorldScene extends Phaser.Scene {
   private handleShutdown() {
     this.controls?.destroy();
     this.controls = undefined;
+    this.dialoguePanel?.destroy();
     this.overlay?.destroy();
   }
 }
