@@ -1,11 +1,15 @@
 import Phaser from 'phaser';
 import { DebugOverlay } from '@/game/systems/DebugOverlay';
 import type { Season } from '@/game/config';
+import { RETIRO_CONFIG } from '@/game/levels/retiro/retiro.config';
+import { DEPTH, depthFromFeet } from '@/game/rendering/depth';
 import { bus } from '@/core/events/bus';
 import { saveService } from '@/core/save/SaveService';
 import { WorldControls } from '@/game/input/WorldControls';
 import { Player, registerPlayerAnimations } from '@/game/entities/Player';
 import { Foreman } from '@/game/entities/Foreman';
+import { AffTerminal } from '@/game/entities/AffTerminal';
+import { resolveAffTerminalState } from '@/game/entities/affTerminal.types';
 import { DialoguePanel } from '@/game/ui/DialoguePanel';
 import { WorldHud } from '@/game/ui/WorldHud';
 import {
@@ -17,7 +21,6 @@ import {
   transitionRetiroTutorial,
 } from '@/game/tutorial/RetiroTutorial';
 
-const DEFAULT_PLAYER_POSITION = { x: 250, y: 440 } as const;
 const PLAYER_SPEED = 190;
 
 interface InteractableObject {
@@ -31,28 +34,28 @@ interface InteractableObject {
 
 export default class WorldScene extends Phaser.Scene {
   // Subsistemas
-  private overlay!: DebugOverlay;
+  private overlay?: DebugOverlay;
   private controls?: WorldControls;
-  private dialoguePanel!: DialoguePanel;
+  private dialoguePanel?: DialoguePanel;
   private hud?: WorldHud;
 
   // Estado de juego
   private day!: number;
   private season!: Season;
   private initialPlayerPos: { x: number; y: number } = {
-    x: DEFAULT_PLAYER_POSITION.x,
-    y: DEFAULT_PLAYER_POSITION.y,
+    x: RETIRO_CONFIG.playerSpawn.x,
+    y: RETIRO_CONFIG.playerSpawn.y,
   };
 
   // Entidades
   private player!: Player;
   private foreman!: Foreman;
+  private affTerminal!: AffTerminal;
 
   // Grupos de físicas
   private obstacles!: Phaser.Physics.Arcade.StaticGroup;
 
   // Semantic references for future asset replacement
-  private affBoard!: Phaser.GameObjects.Rectangle;
   private trainDoor!: Phaser.GameObjects.Rectangle;
   private trainBody!: Phaser.GameObjects.Rectangle;
   private affOffice!: Phaser.GameObjects.Rectangle;
@@ -61,6 +64,8 @@ export default class WorldScene extends Phaser.Scene {
   private tutorialStep: TutorialStep = TutorialStep.TALK_TO_FOREMAN;
   private interactables: InteractableObject[] = [];
   private currentTarget: InteractableObject | null = null;
+  private pendingObjectiveText: string | null = null;
+  private shouldRefreshInteractionPrompt = false;
 
   constructor() {
     super('WorldScene');
@@ -71,27 +76,34 @@ export default class WorldScene extends Phaser.Scene {
     this.season = data?.season ?? 'Primavera';
     this.initialPlayerPos = data?.player
       ? { x: data.player.x, y: data.player.y }
-      : { x: DEFAULT_PLAYER_POSITION.x, y: DEFAULT_PLAYER_POSITION.y };
+      : {
+          x: RETIRO_CONFIG.playerSpawn.x,
+          y: RETIRO_CONFIG.playerSpawn.y,
+        };
     this.tutorialStep = TutorialStep.TALK_TO_FOREMAN;
+    this.pendingObjectiveText = null;
+    this.currentTarget = null;
+    this.shouldRefreshInteractionPrompt = false;
   }
 
   create() {
-    const WORLD_WIDTH = 1200;
-    const WORLD_HEIGHT = 800;
+    const { width: worldWidth, height: worldHeight } = RETIRO_CONFIG.world;
 
-    this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    this.physics.world.setBounds(0, 0, worldWidth, worldHeight);
     this.obstacles = this.physics.add.staticGroup();
 
     registerPlayerAnimations(this);
 
-    this.createEnvironment(WORLD_WIDTH, WORLD_HEIGHT);
+    this.createEnvironment(worldWidth, worldHeight);
     this.createPlayer();
     this.createCharacters();
     this.createInteractables();
 
     // Colisiones y cámara
     this.physics.add.collider(this.player, this.obstacles);
-    this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    this.physics.add.collider(this.player, this.foreman);
+    this.physics.add.collider(this.player, this.affTerminal);
+    this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 
     // Controles — validación explícita
@@ -106,8 +118,8 @@ export default class WorldScene extends Phaser.Scene {
     this.hud = new WorldHud(this);
 
     // Configuración inicial del HUD
-    this.hud.setObjective(getRetiroObjective(this.tutorialStep));
     this.hud.showLocationIntro({ location: 'Retiro', day: this.day });
+    this.hud.setObjective(getRetiroObjective(this.tutorialStep));
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
 
@@ -134,26 +146,27 @@ export default class WorldScene extends Phaser.Scene {
 
     // 4. Target interactuable
     this.updateInteractionTarget();
+    this.updateAffTerminalState();
 
     // 5. Debug overlay
-    this.overlay.update(_time, delta);
+    this.overlay?.update(_time, delta);
   }
 
   // ── Construcción del escenario ─────────────────────────────────────────────
 
   private createEnvironment(width: number, height: number) {
     // Placeholder futuro: tileset del piso de la estación Retiro
-    this.add.rectangle(width / 2, height / 2, width, height, 0x3d2e24).setDepth(-10);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x3d2e24).setDepth(DEPTH.background);
 
     // Placeholder futuro: textura de baldosa/concreto del hall de Retiro
-    this.add.rectangle(600, 250, 1100, 360, 0x5a3d28).setDepth(-9);
+    this.add.rectangle(600, 250, 1100, 360, 0x5a3d28).setDepth(DEPTH.ground);
     // Placeholder futuro: textura del andén de embarque
-    this.add.rectangle(600, 480, 1100, 100, 0x6e523c).setDepth(-8);
+    this.add.rectangle(600, 480, 1100, 100, 0x6e523c).setDepth(DEPTH.ground);
 
     // Placeholder futuro: sprite/tileset de vías ferreas y balasto
-    this.add.rectangle(600, 670, 1200, 260, 0x1c1613).setDepth(-7);
-    this.add.rectangle(600, 600, 1200, 8, 0x8b5a2b).setDepth(-6);
-    this.add.rectangle(600, 630, 1200, 8, 0x8b5a2b).setDepth(-6);
+    this.add.rectangle(600, 670, 1200, 260, 0x1c1613).setDepth(DEPTH.ground);
+    this.add.rectangle(600, 600, 1200, 8, 0x8b5a2b).setDepth(DEPTH.structures);
+    this.add.rectangle(600, 630, 1200, 8, 0x8b5a2b).setDepth(DEPTH.structures);
 
     const tracksBarrier = this.add.rectangle(600, 660, 1200, 180, 0x000000, 0);
     this.obstacles.add(tracksBarrier);
@@ -168,20 +181,25 @@ export default class WorldScene extends Phaser.Scene {
 
     // Oficina de la AFF
     // Placeholder futuro: estructura modular/puesto turquesa de la AFF
-    this.affOffice = this.add.rectangle(950, 210, 240, 180, 0x028090);
+    this.affOffice = this.add.rectangle(950, 210, 240, 180, 0x028090).setDepth(DEPTH.structures);
     this.obstacles.add(this.affOffice);
-    this.add.text(950, 160, 'OFICINA AFF', { fontSize: '13px', color: '#94a3b8' }).setOrigin(0.5);
+    this.add.text(950, 160, 'OFICINA AFF', { fontSize: '13px', color: '#94a3b8' }).setOrigin(0.5).setDepth(DEPTH.worldLabels);
 
     // Tren al Sur detenido en el andén
     // Placeholder futuro: sprite del convoy/tren federal Tren al Sur
-    this.trainBody = this.add.rectangle(550, 605, 780, 70, 0x80091b);
+    this.trainBody = this.add.rectangle(550, 605, 780, 70, 0x80091b).setDepth(DEPTH.structures);
     this.obstacles.add(this.trainBody);
-    this.add.text(550, 615, 'TREN AL SUR', { fontSize: '13px', color: '#cbd5e1' }).setOrigin(0.5);
+    this.add.text(550, 615, 'TREN AL SUR', { fontSize: '13px', color: '#cbd5e1' }).setOrigin(0.5).setDepth(DEPTH.worldLabels);
 
     // Puerta del Tren al Sur
     // Placeholder futuro: sprite de la escotilla/puerta de acceso al Tren
-    this.trainDoor = this.add.rectangle(350, 565, 50, 15, 0x48cae4);
-    this.add.text(350, 545, 'PUERTA', { fontSize: '11px', color: '#94a3b8' }).setOrigin(0.5);
+    this.trainDoor = this.add
+      .rectangle(RETIRO_CONFIG.trainDoor.x, RETIRO_CONFIG.trainDoor.y, 50, 15, 0x48cae4)
+      .setDepth(depthFromFeet(RETIRO_CONFIG.trainDoor.y));
+    this.add
+      .text(RETIRO_CONFIG.trainDoor.x, RETIRO_CONFIG.trainDoor.y - 20, 'PUERTA', { fontSize: '11px', color: '#94a3b8' })
+      .setOrigin(0.5)
+      .setDepth(DEPTH.worldLabels);
 
     // Bancos de la estación (2)
     // Placeholder futuro: sprites de bancos de madera/hierro
@@ -202,42 +220,45 @@ export default class WorldScene extends Phaser.Scene {
 
   private createPlayer() {
     this.player = new Player(this, this.initialPlayerPos.x, this.initialPlayerPos.y);
+    this.player.face(RETIRO_CONFIG.playerSpawn.facing);
   }
 
   private createCharacters() {
-    this.foreman = new Foreman(this, 240, 440);
-    this.obstacles.add(this.foreman);
+    this.foreman = new Foreman(this, RETIRO_CONFIG.foreman.x, RETIRO_CONFIG.foreman.y);
   }
 
   private createInteractables() {
-    // Placeholder futuro: sprite de terminal interactiva de la AFF
-    this.affBoard = this.add.rectangle(810, 240, 25, 40, 0x48cae4);
-    this.add.text(810, 205, 'TABLERO DE SLOTS', { fontSize: '11px', color: '#00f5d4' }).setOrigin(0.5);
+    this.affTerminal = new AffTerminal(
+      this,
+      RETIRO_CONFIG.affBoard.x,
+      RETIRO_CONFIG.affBoard.y,
+    );
+    const terminalInteractionPoint = this.affTerminal.getInteractionPoint();
 
     this.interactables = [
       {
         id: 'foreman',
         name: 'Capataz',
-        interactionLabel: 'Hablar con Capataz',
-        x: this.foreman.x,
-        y: this.foreman.y,
-        radius: 70,
+        interactionLabel: RETIRO_CONFIG.foreman.interactionLabel,
+        x: RETIRO_CONFIG.foreman.x,
+        y: RETIRO_CONFIG.foreman.y,
+        radius: RETIRO_CONFIG.foreman.interactionRadius,
       },
       {
         id: 'affBoard',
-        name: 'Tablero AFF',
-        interactionLabel: 'Consultar tablero AFF',
-        x: this.affBoard.x,
-        y: this.affBoard.y,
-        radius: 75,
+        name: 'Terminal AFF',
+        interactionLabel: RETIRO_CONFIG.affBoard.interactionLabel,
+        x: terminalInteractionPoint.x,
+        y: terminalInteractionPoint.y,
+        radius: RETIRO_CONFIG.affBoard.interactionRadius,
       },
       {
         id: 'trainDoor',
         name: 'Puerta del Tren',
-        interactionLabel: 'Revisar puerta del tren',
-        x: this.trainDoor.x,
-        y: this.trainDoor.y,
-        radius: 65,
+        interactionLabel: RETIRO_CONFIG.trainDoor.interactionLabel,
+        x: RETIRO_CONFIG.trainDoor.x,
+        y: RETIRO_CONFIG.trainDoor.y,
+        radius: RETIRO_CONFIG.trainDoor.interactionRadius,
       },
     ];
   }
@@ -245,7 +266,7 @@ export default class WorldScene extends Phaser.Scene {
   // ── Movimiento ─────────────────────────────────────────────────────────────
 
   private updateMovement() {
-    if (this.dialoguePanel.isOpen) {
+    if (this.dialoguePanel?.isOpen) {
       this.player.freeze();
       return;
     }
@@ -263,8 +284,13 @@ export default class WorldScene extends Phaser.Scene {
   // ── Interacción ────────────────────────────────────────────────────────────
 
   private updateInteractionTarget() {
-    if (this.dialoguePanel.isOpen) {
+    if (this.dialoguePanel?.isOpen) {
       this.hud?.hideInteractionPrompt();
+      return;
+    }
+
+    if (this.shouldRefreshInteractionPrompt) {
+      this.shouldRefreshInteractionPrompt = false;
       return;
     }
 
@@ -294,9 +320,33 @@ export default class WorldScene extends Phaser.Scene {
     }
   }
 
+  private updateAffTerminalState() {
+    const interactionPoint = this.affTerminal.getInteractionPoint();
+    const playerInRange = !this.dialoguePanel?.isOpen
+      && Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        interactionPoint.x,
+        interactionPoint.y,
+      ) <= RETIRO_CONFIG.affBoard.interactionRadius;
+    const slotConfirmed = this.tutorialStep === TutorialStep.RETURN_TO_TRAIN
+      || this.tutorialStep === TutorialStep.COMPLETED;
+
+    this.affTerminal.setTerminalState(
+      resolveAffTerminalState(slotConfirmed, playerInRange),
+    );
+  }
+
   private interact() {
-    if (this.dialoguePanel.isOpen) {
-      this.dialoguePanel.advance();
+    const dialoguePanel = this.dialoguePanel;
+    if (!dialoguePanel) return;
+
+    if (dialoguePanel.isOpen) {
+      if (dialoguePanel.advance() === 'closed') {
+        this.applyPendingObjective();
+        this.currentTarget = null;
+        this.shouldRefreshInteractionPrompt = true;
+      }
       return;
     }
 
@@ -304,14 +354,21 @@ export default class WorldScene extends Phaser.Scene {
 
     const result = transitionRetiroTutorial(this.tutorialStep, this.currentTarget.id);
     this.tutorialStep = result.step;
-    this.hud?.setObjective(result.objectiveText);
-    this.dialoguePanel.open(result.dialogue);
+    dialoguePanel.open(result.dialogue);
+    this.pendingObjectiveText = result.stepChanged ? result.objectiveText : null;
+  }
+
+  private applyPendingObjective() {
+    if (!this.pendingObjectiveText) return;
+
+    this.hud?.setObjective(this.pendingObjectiveText);
+    this.pendingObjectiveText = null;
   }
 
   // ── Guardado ───────────────────────────────────────────────────────────────
 
   private async handleSave() {
-    if (this.dialoguePanel.isOpen) return;
+    if (this.dialoguePanel?.isOpen) return;
     try {
       await saveService.save({
         id: 'slot-1',
@@ -334,11 +391,17 @@ export default class WorldScene extends Phaser.Scene {
   // ── Ciclo de vida ──────────────────────────────────────────────────────────
 
   private handleShutdown() {
+    this.pendingObjectiveText = null;
+    this.currentTarget = null;
+    this.shouldRefreshInteractionPrompt = false;
+    this.interactables = [];
     this.controls?.destroy();
     this.controls = undefined;
     this.hud?.destroy();
     this.hud = undefined;
     this.dialoguePanel?.destroy();
+    this.dialoguePanel = undefined;
     this.overlay?.destroy();
+    this.overlay = undefined;
   }
 }

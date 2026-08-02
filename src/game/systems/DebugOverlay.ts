@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { DEPTH } from '@/game/rendering/depth';
 
 export class DebugOverlay {
   private text!: Phaser.GameObjects.Text;
@@ -7,7 +8,7 @@ export class DebugOverlay {
   constructor(private scene: Phaser.Scene) {}
 
   mount() {
-    this.text = this.scene.add.text(8, 8, '', { fontSize: '12px', color: '#9ad' }).setDepth(1000);
+    this.text = this.scene.add.text(8, 8, '', { fontSize: '12px', color: '#9ad' }).setDepth(DEPTH.debug);
   }
 
   update(time: number, _delta: number) {

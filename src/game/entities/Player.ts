@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { ASSET_KEYS, PLAYER_SPRITESHEET } from '@/game/assets/assetKeys';
+import { depthFromFeet } from '@/game/rendering/depth';
 
 export type PlayerDirection = 'down' | 'left' | 'right' | 'up';
 
@@ -51,6 +52,7 @@ export function registerPlayerAnimations(scene: Phaser.Scene): void {
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   private direction: PlayerDirection = 'down';
+  private lastRenderedDepth?: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     // frame 0 = idle abajo
@@ -67,6 +69,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     body.setCollideWorldBounds(true);
     body.setSize(HITBOX_WIDTH, HITBOX_HEIGHT);
     body.setOffset(HITBOX_OFFSET_X, HITBOX_OFFSET_Y);
+
+    this.updateRenderedDepth();
+  }
+
+  preUpdate(time: number, delta: number): void {
+    super.preUpdate(time, delta);
+    this.updateRenderedDepth();
   }
 
   move(input: { x: number; y: number }, speed: number): void {
@@ -102,7 +111,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setFrame(IDLE_FRAMES[this.direction]);
   }
 
+  face(direction: PlayerDirection): void {
+    this.direction = direction;
+    this.anims.stop();
+    this.setFrame(IDLE_FRAMES[direction]);
+  }
+
   getDirection(): PlayerDirection {
     return this.direction;
+  }
+
+  private updateRenderedDepth(): void {
+    const nextDepth = depthFromFeet(this.y);
+    if (nextDepth === this.lastRenderedDepth) return;
+
+    this.lastRenderedDepth = nextDepth;
+    this.setDepth(nextDepth);
   }
 }

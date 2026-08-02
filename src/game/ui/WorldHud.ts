@@ -1,133 +1,190 @@
 import Phaser from 'phaser';
+import { DEPTH } from '@/game/rendering/depth';
+import { UI_THEME } from './uiTheme';
 
 export interface LocationIntroData {
   location: string;
   day: number;
 }
 
-const HUD_DEPTH = 400;
-const INTERACTION_DEPTH = 450;
-const SCREEN_MARGIN = 18;
+const SCREEN_MARGIN = UI_THEME.spacing.screen;
+const INTRO_Y = 36;
+const INTRO_WIDTH = 300;
+const INTRO_HEIGHT = 42;
+const INTRO_FADE_DURATION = 250;
+const INTRO_HOLD_DURATION = 1650;
+const OBJECTIVE_REVEAL_DURATION = 180;
+const OBJECTIVE_REVEAL_DELAY = INTRO_FADE_DURATION - OBJECTIVE_REVEAL_DURATION;
+
+const OBJECTIVE_WIDTH = 300;
+const OBJECTIVE_SINGLE_LINE_HEIGHT = 62;
+const OBJECTIVE_MULTI_LINE_HEIGHT = 78;
+const OBJECTIVE_ACCENT_WIDTH = 4;
+const OBJECTIVE_PADDING = 12;
+const OBJECTIVE_TEXT_X = OBJECTIVE_ACCENT_WIDTH + OBJECTIVE_PADDING;
+
+const PROMPT_HEIGHT = 34;
+const PROMPT_KEY_SIZE = 26;
+const PROMPT_HORIZONTAL_PADDING = 12;
+const PROMPT_GAP = UI_THEME.spacing.small;
 
 export class WorldHud {
-  // Presentación de ubicación (Placa temporal)
   private introContainer: Phaser.GameObjects.Container;
-  private introBg: Phaser.GameObjects.Rectangle;
   private introText: Phaser.GameObjects.Text;
   private introTween?: Phaser.Tweens.Tween;
+  private isIntroActive = false;
 
-  // Tarjeta de objetivo
   private objectiveContainer: Phaser.GameObjects.Container;
+  private objectiveShadow: Phaser.GameObjects.Rectangle;
   private objectiveBg: Phaser.GameObjects.Rectangle;
-  private objectiveInnerBorder: Phaser.GameObjects.Rectangle;
-  private objectiveLabel: Phaser.GameObjects.Text;
+  private objectiveAccent: Phaser.GameObjects.Rectangle;
   private objectiveText: Phaser.GameObjects.Text;
-  private currentObjectiveStr = '';
+  private currentObjectiveText = '';
+  private objectiveTween?: Phaser.Tweens.Tween;
+  private objectiveFeedbackTween?: Phaser.Tweens.Tween;
 
-  // Prompt de interacción
   private promptContainer: Phaser.GameObjects.Container;
+  private promptShadow: Phaser.GameObjects.Rectangle;
   private promptBg: Phaser.GameObjects.Rectangle;
   private promptKeyBox: Phaser.GameObjects.Rectangle;
   private promptKeyText: Phaser.GameObjects.Text;
   private promptLabelText: Phaser.GameObjects.Text;
+  private requestedPromptLabel: string | null = null;
+  private promptTween?: Phaser.Tweens.Tween;
 
   private isDestroyed = false;
 
   constructor(private scene: Phaser.Scene) {
     const screenWidth = this.scene.scale.width;
+    const promptY = this.scene.scale.height - SCREEN_MARGIN - PROMPT_HEIGHT / 2;
 
-    // ── 1. Presentación de ubicación (Placa superior centrada) ─────────────────
     this.introContainer = this.scene.add
-      .container(screenWidth / 2, 36)
+      .container(screenWidth / 2, INTRO_Y)
       .setScrollFactor(0)
-      .setDepth(HUD_DEPTH)
+      .setDepth(DEPTH.hud + 1)
       .setAlpha(0);
 
-    this.introBg = this.scene.add.rectangle(0, 0, 300, 44, 0x0b1329, 0.95);
-    this.introBg.setStrokeStyle(1.5, 0xd97706);
-
-    const introLeftDeco = this.scene.add.rectangle(-135, 0, 4, 24, 0xd97706);
-    const introRightDeco = this.scene.add.rectangle(135, 0, 4, 24, 0xd97706);
+    const introShadow = this.scene.add.rectangle(
+      3,
+      4,
+      INTRO_WIDTH,
+      INTRO_HEIGHT,
+      UI_THEME.colors.shadow,
+      UI_THEME.alpha.shadow,
+    );
+    const introBg = this.scene.add.rectangle(
+      0,
+      0,
+      INTRO_WIDTH,
+      INTRO_HEIGHT,
+      UI_THEME.colors.surfaceElevated,
+      UI_THEME.alpha.surface,
+    );
+    const introAccent = this.scene.add.rectangle(
+      0,
+      INTRO_HEIGHT / 2 - 4,
+      INTRO_WIDTH - 36,
+      2,
+      UI_THEME.colors.objectiveAccent,
+    );
 
     this.introText = this.scene.add
-      .text(0, 0, '', {
+      .text(0, -3, '', {
         fontSize: '15px',
-        color: '#fef3c7',
+        color: UI_THEME.colors.textPrimary,
         fontStyle: 'bold',
         letterSpacing: 1.5,
       })
       .setOrigin(0.5);
 
     this.introContainer.add([
-      this.introBg,
-      introLeftDeco,
-      introRightDeco,
+      introShadow,
+      introBg,
+      introAccent,
       this.introText,
     ]);
 
-    // ── 2. Tarjeta de objetivo (Arriba a la izquierda) ──────────────────────────
     this.objectiveContainer = this.scene.add
       .container(SCREEN_MARGIN, SCREEN_MARGIN)
       .setScrollFactor(0)
-      .setDepth(HUD_DEPTH);
+      .setDepth(DEPTH.hud)
+      .setVisible(false);
 
+    this.objectiveShadow = this.scene.add
+      .rectangle(
+        3,
+        4,
+        OBJECTIVE_WIDTH,
+        OBJECTIVE_SINGLE_LINE_HEIGHT,
+        UI_THEME.colors.shadow,
+        UI_THEME.alpha.shadow,
+      )
+      .setOrigin(0, 0);
     this.objectiveBg = this.scene.add
-      .rectangle(0, 0, 330, 72, 0x0b1329, 0.92)
+      .rectangle(
+        0,
+        0,
+        OBJECTIVE_WIDTH,
+        OBJECTIVE_SINGLE_LINE_HEIGHT,
+        UI_THEME.colors.surface,
+        UI_THEME.alpha.surface,
+      )
       .setOrigin(0, 0);
-    this.objectiveBg.setStrokeStyle(1.5, 0xd97706);
+    this.objectiveAccent = this.scene.add
+      .rectangle(0, 0, OBJECTIVE_ACCENT_WIDTH, OBJECTIVE_SINGLE_LINE_HEIGHT, UI_THEME.colors.objectiveAccent)
+      .setOrigin(0, 0)
+      .setAlpha(0.85);
 
-    this.objectiveInnerBorder = this.scene.add
-      .rectangle(3, 3, 324, 66, 0x000000, 0)
-      .setOrigin(0, 0);
-    this.objectiveInnerBorder.setStrokeStyle(1, 0x1e293b);
-
-    this.objectiveLabel = this.scene.add.text(12, 10, 'OBJETIVO', {
-      fontSize: '10px',
-      color: '#d97706',
+    const objectiveLabel = this.scene.add.text(OBJECTIVE_TEXT_X, 8, 'OBJETIVO', {
+      fontSize: '9px',
+      color: UI_THEME.colors.objectiveLabel,
       fontStyle: 'bold',
       letterSpacing: 1,
     });
 
-    this.objectiveText = this.scene.add.text(12, 26, '', {
-      fontSize: '14px',
-      color: '#f8fafc',
-      wordWrap: { width: 306 },
+    this.objectiveText = this.scene.add.text(OBJECTIVE_TEXT_X, 24, '', {
+      fontSize: '13px',
+      color: UI_THEME.colors.textPrimary,
+      lineSpacing: 2,
+      wordWrap: { width: OBJECTIVE_WIDTH - OBJECTIVE_TEXT_X - OBJECTIVE_PADDING },
     });
 
     this.objectiveContainer.add([
+      this.objectiveShadow,
       this.objectiveBg,
-      this.objectiveInnerBorder,
-      this.objectiveLabel,
+      this.objectiveAccent,
+      objectiveLabel,
       this.objectiveText,
     ]);
 
-    // ── 3. Prompt de interacción (Abajo centrado: [ E ] Acción) ────────────────
     this.promptContainer = this.scene.add
-      .container(screenWidth / 2, 480)
+      .container(screenWidth / 2, promptY)
       .setScrollFactor(0)
-      .setDepth(INTERACTION_DEPTH)
+      .setDepth(DEPTH.interactionPrompt)
       .setVisible(false);
 
-    this.promptBg = this.scene.add.rectangle(0, 0, 240, 38, 0x0f172a, 0.94);
-    this.promptBg.setStrokeStyle(1.5, 0x028090);
-
-    this.promptKeyBox = this.scene.add.rectangle(-95, 0, 26, 24, 0x1e293b);
-    this.promptKeyBox.setStrokeStyle(1, 0x00f5d4);
+    this.promptShadow = this.scene.add.rectangle(3, 4, 160, PROMPT_HEIGHT, UI_THEME.colors.shadow, UI_THEME.alpha.shadow);
+    this.promptBg = this.scene.add.rectangle(0, 0, 160, PROMPT_HEIGHT, UI_THEME.colors.surface, UI_THEME.alpha.surface);
+    this.promptKeyBox = this.scene.add.rectangle(0, 0, PROMPT_KEY_SIZE, PROMPT_KEY_SIZE, UI_THEME.colors.surfaceElevated);
+    this.promptKeyBox.setStrokeStyle(1, UI_THEME.colors.interactionAccent, 0.7);
 
     this.promptKeyText = this.scene.add
-      .text(-95, 0, 'E', {
+      .text(0, 0, 'E', {
         fontSize: '13px',
-        color: '#00f5d4',
+        color: UI_THEME.colors.textPrimary,
         fontStyle: 'bold',
       })
       .setOrigin(0.5);
 
-    this.promptLabelText = this.scene.add.text(-70, 0, '', {
-      fontSize: '14px',
-      color: '#f8fafc',
-    }).setOrigin(0, 0.5);
+    this.promptLabelText = this.scene.add
+      .text(0, 0, '', {
+        fontSize: '13px',
+        color: UI_THEME.colors.textPrimary,
+      })
+      .setOrigin(0, 0.5);
 
     this.promptContainer.add([
+      this.promptShadow,
       this.promptBg,
       this.promptKeyBox,
       this.promptKeyText,
@@ -139,67 +196,64 @@ export class WorldHud {
     if (this.isDestroyed) return;
 
     this.introText.setText(`${data.location.toUpperCase()} · DÍA ${data.day}`);
+    this.isIntroActive = true;
 
     this.introTween?.stop();
-    this.introContainer.setAlpha(0).setY(26);
+    this.objectiveTween?.stop();
+    this.introContainer.setAlpha(0).setY(INTRO_Y - 10);
+    this.objectiveContainer.setVisible(false).setAlpha(0);
+    this.promptContainer.setVisible(false).setAlpha(1);
 
     this.introTween = this.scene.tweens.add({
       targets: this.introContainer,
       alpha: { from: 0, to: 1 },
-      y: { from: 26, to: 36 },
-      duration: 250,
-      hold: 2000,
+      y: { from: INTRO_Y - 10, to: INTRO_Y },
+      duration: INTRO_FADE_DURATION,
+      hold: INTRO_HOLD_DURATION,
       yoyo: true,
-      onComplete: () => {
+      onYoyo: () => {
         if (!this.isDestroyed) {
-          this.introContainer.setAlpha(0);
+          this.revealObjective();
         }
+      },
+      onComplete: () => {
+        if (this.isDestroyed) return;
+
+        this.isIntroActive = false;
+        this.introContainer.setAlpha(0);
+        this.showRequestedPrompt();
       },
     });
   }
 
   setObjective(text: string): void {
-    if (this.isDestroyed || this.currentObjectiveStr === text) return;
-    this.currentObjectiveStr = text;
+    if (this.isDestroyed || this.currentObjectiveText === text) return;
 
+    this.currentObjectiveText = text;
     this.objectiveText.setText(text);
+    this.updateObjectiveLayout();
 
-    // Ajustar tamaño del fondo dinámicamente según la altura del texto
-    const textHeight = this.objectiveText.height;
-    const bgHeight = Math.max(64, textHeight + 36);
+    if (this.isIntroActive) return;
 
-    this.objectiveBg.setSize(330, bgHeight);
-    this.objectiveInnerBorder.setSize(324, bgHeight - 6);
-
-    // Feedback sutil
-    this.scene.tweens.add({
-      targets: this.objectiveContainer,
-      alpha: { from: 0.5, to: 1 },
-      duration: 180,
-    });
+    this.objectiveContainer.setVisible(true).setAlpha(1);
+    this.flashObjectiveAccent();
   }
 
   showInteractionPrompt(label: string): void {
     if (this.isDestroyed) return;
 
-    this.promptLabelText.setText(label);
+    this.requestedPromptLabel = label;
+    if (this.isIntroActive) return;
 
-    // Reposicionar y ajustar ancho del contenedor del prompt según el largo de la etiqueta
-    const labelWidth = this.promptLabelText.width;
-    const totalWidth = Math.max(180, labelWidth + 60);
-
-    this.promptBg.setSize(totalWidth, 38);
-    const keyX = -totalWidth / 2 + 22;
-    this.promptKeyBox.setX(keyX);
-    this.promptKeyText.setX(keyX);
-    this.promptLabelText.setX(keyX + 22);
-
-    this.promptContainer.setVisible(true);
+    this.showRequestedPrompt();
   }
 
   hideInteractionPrompt(): void {
     if (this.isDestroyed) return;
-    this.promptContainer.setVisible(false);
+
+    this.requestedPromptLabel = null;
+    this.promptTween?.stop();
+    this.promptContainer.setVisible(false).setAlpha(1);
   }
 
   destroy(): void {
@@ -207,10 +261,85 @@ export class WorldHud {
     this.isDestroyed = true;
 
     this.introTween?.stop();
+    this.objectiveTween?.stop();
+    this.objectiveFeedbackTween?.stop();
+    this.promptTween?.stop();
     this.introTween = undefined;
+    this.objectiveTween = undefined;
+    this.objectiveFeedbackTween = undefined;
+    this.promptTween = undefined;
 
     this.introContainer.destroy();
     this.objectiveContainer.destroy();
     this.promptContainer.destroy();
+  }
+
+  private updateObjectiveLayout(): void {
+    const objectiveHeight = this.objectiveText.height > 18
+      ? OBJECTIVE_MULTI_LINE_HEIGHT
+      : OBJECTIVE_SINGLE_LINE_HEIGHT;
+
+    this.objectiveShadow.setSize(OBJECTIVE_WIDTH, objectiveHeight);
+    this.objectiveBg.setSize(OBJECTIVE_WIDTH, objectiveHeight);
+    this.objectiveAccent.setSize(OBJECTIVE_ACCENT_WIDTH, objectiveHeight);
+  }
+
+  private revealObjective(): void {
+    if (!this.currentObjectiveText) return;
+
+    this.objectiveTween?.stop();
+    this.objectiveContainer.setVisible(true).setAlpha(0);
+    this.objectiveTween = this.scene.tweens.add({
+      targets: this.objectiveContainer,
+      alpha: { from: 0, to: 1 },
+      delay: OBJECTIVE_REVEAL_DELAY,
+      duration: OBJECTIVE_REVEAL_DURATION,
+    });
+  }
+
+  private flashObjectiveAccent(): void {
+    this.objectiveFeedbackTween?.stop();
+    this.objectiveAccent.setAlpha(0.5);
+    this.objectiveFeedbackTween = this.scene.tweens.add({
+      targets: this.objectiveAccent,
+      alpha: { from: 0.5, to: 1 },
+      duration: 90,
+      yoyo: true,
+      onComplete: () => this.objectiveAccent.setAlpha(0.85),
+    });
+  }
+
+  private showRequestedPrompt(): void {
+    if (!this.requestedPromptLabel) return;
+
+    this.promptLabelText.setText(this.requestedPromptLabel);
+
+    const labelWidth = this.promptLabelText.width;
+    const totalWidth = labelWidth
+      + PROMPT_KEY_SIZE
+      + PROMPT_GAP
+      + PROMPT_HORIZONTAL_PADDING * 2;
+    const keyX = -totalWidth / 2 + PROMPT_HORIZONTAL_PADDING + PROMPT_KEY_SIZE / 2;
+
+    this.promptShadow.setSize(totalWidth, PROMPT_HEIGHT);
+    this.promptBg.setSize(totalWidth, PROMPT_HEIGHT);
+    this.promptKeyBox.setX(keyX);
+    this.promptKeyText.setX(keyX);
+    this.promptLabelText.setX(keyX + PROMPT_KEY_SIZE / 2 + PROMPT_GAP);
+
+    const wasVisible = this.promptContainer.visible;
+    this.promptTween?.stop();
+    this.promptContainer.setVisible(true);
+
+    if (wasVisible) {
+      this.promptContainer.setAlpha(1);
+      return;
+    }
+
+    this.promptTween = this.scene.tweens.add({
+      targets: this.promptContainer,
+      alpha: { from: 0, to: 1 },
+      duration: 120,
+    });
   }
 }
