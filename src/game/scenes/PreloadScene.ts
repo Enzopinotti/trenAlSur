@@ -1,18 +1,19 @@
 import Phaser from 'phaser';
 import { emitToast } from '@/core/events/bus';
+import { ASSET_KEYS, PLAYER_SPRITESHEET } from '@/game/assets/assetKeys';
 
 export default class PreloadScene extends Phaser.Scene {
   private progressBox!: Phaser.GameObjects.Rectangle;
   private progressBar!: Phaser.GameObjects.Rectangle;
 
-  constructor(){ super('PreloadScene'); }
+  constructor() { super('PreloadScene'); }
 
-  preload(){
+  preload() {
     const { width, height } = this.scale;
 
-    this.add.text(width/2, height/2 - 60, 'Cargando...', { fontSize: '24px', color:'#fff' }).setOrigin(0.5);
-    this.progressBox = this.add.rectangle(width/2, height/2, 320, 24, 0x222222).setOrigin(0.5);
-    this.progressBar = this.add.rectangle(width/2 - 158, height/2, 4, 16, 0x6cf7ff).setOrigin(0, 0.5);
+    this.add.text(width / 2, height / 2 - 60, 'Cargando...', { fontSize: '24px', color: '#fff' }).setOrigin(0.5);
+    this.progressBox = this.add.rectangle(width / 2, height / 2, 320, 24, 0x222222).setOrigin(0.5);
+    this.progressBar = this.add.rectangle(width / 2 - 158, height / 2, 4, 16, 0x6cf7ff).setOrigin(0, 0.5);
 
     this.load.on('progress', (value: number) => {
       this.progressBar.width = 316 * value;
@@ -22,12 +23,26 @@ export default class PreloadScene extends Phaser.Scene {
       emitToast('Carga completa');
     });
 
-    for (let i = 0; i < 25; i++) {
-      this.load.image(`dummy-${i}`, `https://picsum.photos/seed/${i}/8/8`);
-    }
+    this.load.on('loaderror', (file: Phaser.Loader.File) => {
+      console.error(`[PreloadScene] No se pudo cargar el recurso: ${file.key} (${file.url})`);
+      this.add.text(width / 2, height / 2 + 40, `Error: no se pudo cargar "${file.key}"`, {
+        fontSize: '14px',
+        color: '#ff6b6b',
+      }).setOrigin(0.5);
+    });
+
+    // Spritesheet del jugador — único asset real de esta etapa
+    this.load.spritesheet(
+      ASSET_KEYS.player,
+      PLAYER_SPRITESHEET.url,
+      {
+        frameWidth: PLAYER_SPRITESHEET.frameWidth,
+        frameHeight: PLAYER_SPRITESHEET.frameHeight,
+      }
+    );
   }
 
-  create(){
+  create() {
     this.scene.start('MenuScene');
   }
 }
