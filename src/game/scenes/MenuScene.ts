@@ -20,9 +20,11 @@ export default class MenuScene extends Phaser.Scene {
     this.paint();
 
     const kb = this.input.keyboard;
-    kb.on('keydown-UP',   () => this.move(-1));
-    kb.on('keydown-DOWN', () => this.move(1));
-    kb.on('keydown-ENTER',() => this.select());
+    if (kb) {
+      kb.on('keydown-UP',   () => this.move(-1));
+      kb.on('keydown-DOWN', () => this.move(1));
+      kb.on('keydown-ENTER',() => this.select());
+    }
 
     this.items.forEach((t, i) => {
       t.setInteractive({ useHandCursor: true })
