@@ -7,6 +7,7 @@ import { WorldControls } from '@/game/input/WorldControls';
 import { Player, registerPlayerAnimations } from '@/game/entities/Player';
 import { Foreman } from '@/game/entities/Foreman';
 import { DialoguePanel } from '@/game/ui/DialoguePanel';
+import { WorldHud } from '@/game/ui/WorldHud';
 import {
   TutorialStep,
   InteractableId,
@@ -22,6 +23,7 @@ const PLAYER_SPEED = 190;
 interface InteractableObject {
   id: InteractableId;
   name: string;
+  interactionLabel: string;
   x: number;
   y: number;
   radius: number;
@@ -32,6 +34,7 @@ export default class WorldScene extends Phaser.Scene {
   private overlay!: DebugOverlay;
   private controls?: WorldControls;
   private dialoguePanel!: DialoguePanel;
+  private hud?: WorldHud;
 
   // Estado de juego
   private day!: number;
@@ -59,10 +62,6 @@ export default class WorldScene extends Phaser.Scene {
   private interactables: InteractableObject[] = [];
   private currentTarget: InteractableObject | null = null;
 
-  // UI
-  private interactionPromptText!: Phaser.GameObjects.Text;
-  private objectiveText!: Phaser.GameObjects.Text;
-
   constructor() {
     super('WorldScene');
   }
@@ -89,7 +88,6 @@ export default class WorldScene extends Phaser.Scene {
     this.createPlayer();
     this.createCharacters();
     this.createInteractables();
-    this.createInterface();
 
     // Colisiones y cámara
     this.physics.add.collider(this.player, this.obstacles);
@@ -103,8 +101,13 @@ export default class WorldScene extends Phaser.Scene {
     }
     this.controls = new WorldControls(keyboard);
 
-    // Componente de UI para diálogos
+    // Componentes de UI
     this.dialoguePanel = new DialoguePanel(this);
+    this.hud = new WorldHud(this);
+
+    // Configuración inicial del HUD
+    this.hud.setObjective(getRetiroObjective(this.tutorialStep));
+    this.hud.showLocationIntro({ location: 'Retiro', day: this.day });
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
 
@@ -163,30 +166,31 @@ export default class WorldScene extends Phaser.Scene {
     this.obstacles.add(wallLeft);
     this.obstacles.add(wallRight);
 
-    this.add.text(600, 35, 'ESTACIÓN RETIRO — LÍNEA MITRE / AFF', { fontSize: '20px', color: '#d97706' }).setOrigin(0.5);
-
+    // Oficina de la AFF
     // Placeholder futuro: estructura modular/puesto turquesa de la AFF
     this.affOffice = this.add.rectangle(950, 210, 240, 180, 0x028090);
     this.obstacles.add(this.affOffice);
-    this.add.text(950, 160, 'OFICINA AFF', { fontSize: '18px', color: '#ffffff' }).setOrigin(0.5);
+    this.add.text(950, 160, 'OFICINA AFF', { fontSize: '13px', color: '#94a3b8' }).setOrigin(0.5);
 
+    // Tren al Sur detenido en el andén
     // Placeholder futuro: sprite del convoy/tren federal Tren al Sur
     this.trainBody = this.add.rectangle(550, 605, 780, 70, 0x80091b);
     this.obstacles.add(this.trainBody);
-    this.add.text(550, 615, 'TREN AL SUR (CONVOY COOPERATIVO #01)', { fontSize: '16px', color: '#ffffff' }).setOrigin(0.5);
+    this.add.text(550, 615, 'TREN AL SUR', { fontSize: '13px', color: '#cbd5e1' }).setOrigin(0.5);
 
+    // Puerta del Tren al Sur
     // Placeholder futuro: sprite de la escotilla/puerta de acceso al Tren
     this.trainDoor = this.add.rectangle(350, 565, 50, 15, 0x48cae4);
-    this.add.text(350, 545, 'PUERTA', { fontSize: '12px', color: '#ffffff' }).setOrigin(0.5);
+    this.add.text(350, 545, 'PUERTA', { fontSize: '11px', color: '#94a3b8' }).setOrigin(0.5);
 
+    // Bancos de la estación (2)
     // Placeholder futuro: sprites de bancos de madera/hierro
     const bench1 = this.add.rectangle(450, 330, 90, 30, 0x5a3d28);
     const bench2 = this.add.rectangle(670, 330, 90, 30, 0x5a3d28);
     this.obstacles.add(bench1);
     this.obstacles.add(bench2);
-    this.add.text(450, 330, 'BANCO', { fontSize: '10px', color: '#bbb' }).setOrigin(0.5);
-    this.add.text(670, 330, 'BANCO', { fontSize: '10px', color: '#bbb' }).setOrigin(0.5);
 
+    // Cajas de carga
     // Placeholder futuro: sprites de contenedores/cajas de madera
     const crate1 = this.add.rectangle(780, 230, 45, 45, 0x8b4513);
     const crate2 = this.add.rectangle(780, 280, 45, 45, 0x8b4513);
@@ -194,8 +198,6 @@ export default class WorldScene extends Phaser.Scene {
     this.obstacles.add(crate1);
     this.obstacles.add(crate2);
     this.obstacles.add(crate3);
-    this.add.text(780, 255, 'CAJAS', { fontSize: '10px', color: '#ddd' }).setOrigin(0.5);
-    this.add.text(200, 330, 'CAJA', { fontSize: '10px', color: '#ddd' }).setOrigin(0.5);
   }
 
   private createPlayer() {
@@ -203,7 +205,6 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   private createCharacters() {
-    // Entidad real Foreman (reemplaza rectángulo del capataz)
     this.foreman = new Foreman(this, 240, 440);
     this.obstacles.add(this.foreman);
   }
@@ -214,32 +215,31 @@ export default class WorldScene extends Phaser.Scene {
     this.add.text(810, 205, 'TABLERO DE SLOTS', { fontSize: '11px', color: '#00f5d4' }).setOrigin(0.5);
 
     this.interactables = [
-      { id: 'foreman',   name: 'Capataz',          x: this.foreman.x,   y: this.foreman.y,   radius: 70 },
-      { id: 'affBoard',  name: 'Tablero AFF',       x: this.affBoard.x,  y: this.affBoard.y,  radius: 75 },
-      { id: 'trainDoor', name: 'Puerta del Tren',   x: this.trainDoor.x, y: this.trainDoor.y, radius: 65 },
+      {
+        id: 'foreman',
+        name: 'Capataz',
+        interactionLabel: 'Hablar con Capataz',
+        x: this.foreman.x,
+        y: this.foreman.y,
+        radius: 70,
+      },
+      {
+        id: 'affBoard',
+        name: 'Tablero AFF',
+        interactionLabel: 'Consultar tablero AFF',
+        x: this.affBoard.x,
+        y: this.affBoard.y,
+        radius: 75,
+      },
+      {
+        id: 'trainDoor',
+        name: 'Puerta del Tren',
+        interactionLabel: 'Revisar puerta del tren',
+        x: this.trainDoor.x,
+        y: this.trainDoor.y,
+        radius: 65,
+      },
     ];
-  }
-
-  private createInterface() {
-    this.add.text(16, 16, `Andén de Retiro — Día ${this.day}`, {
-      fontSize: '22px', color: '#ffffff',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      padding: { x: 8, y: 4 },
-    }).setScrollFactor(0).setDepth(400);
-
-    this.objectiveText = this.add.text(16, 50, '', {
-      fontSize: '16px', color: '#ffd54a',
-      backgroundColor: 'rgba(0,0,0,0.6)',
-      padding: { x: 8, y: 4 },
-    }).setScrollFactor(0).setDepth(400);
-
-    this.setObjective(getRetiroObjective(this.tutorialStep));
-
-    this.interactionPromptText = this.add.text(400, 480, '', {
-      fontSize: '18px', color: '#00f5d4',
-      backgroundColor: '#111827',
-      padding: { x: 12, y: 6 },
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(450).setVisible(false);
   }
 
   // ── Movimiento ─────────────────────────────────────────────────────────────
@@ -264,7 +264,7 @@ export default class WorldScene extends Phaser.Scene {
 
   private updateInteractionTarget() {
     if (this.dialoguePanel.isOpen) {
-      this.interactionPromptText.setVisible(false);
+      this.hud?.hideInteractionPrompt();
       return;
     }
 
@@ -279,13 +279,18 @@ export default class WorldScene extends Phaser.Scene {
       }
     }
 
+    const previousTargetId = this.currentTarget?.id ?? null;
+    const nextTargetId = nearest?.id ?? null;
+
     this.currentTarget = nearest;
 
-    if (this.currentTarget) {
-      this.interactionPromptText.setText(`E — Interactuar con ${this.currentTarget.name}`);
-      this.interactionPromptText.setVisible(true);
-    } else {
-      this.interactionPromptText.setVisible(false);
+    // Solo actualizar la UI del HUD si el objetivo cambió
+    if (previousTargetId !== nextTargetId) {
+      if (this.currentTarget) {
+        this.hud?.showInteractionPrompt(this.currentTarget.interactionLabel);
+      } else {
+        this.hud?.hideInteractionPrompt();
+      }
     }
   }
 
@@ -299,7 +304,7 @@ export default class WorldScene extends Phaser.Scene {
 
     const result = transitionRetiroTutorial(this.tutorialStep, this.currentTarget.id);
     this.tutorialStep = result.step;
-    this.setObjective(result.objectiveText);
+    this.hud?.setObjective(result.objectiveText);
     this.dialoguePanel.open(result.dialogue);
   }
 
@@ -326,17 +331,13 @@ export default class WorldScene extends Phaser.Scene {
     }
   }
 
-  // ── UI helpers ─────────────────────────────────────────────────────────────
-
-  private setObjective(text: string) {
-    this.objectiveText.setText(`Objetivo: ${text}`);
-  }
-
   // ── Ciclo de vida ──────────────────────────────────────────────────────────
 
   private handleShutdown() {
     this.controls?.destroy();
     this.controls = undefined;
+    this.hud?.destroy();
+    this.hud = undefined;
     this.dialoguePanel?.destroy();
     this.overlay?.destroy();
   }
