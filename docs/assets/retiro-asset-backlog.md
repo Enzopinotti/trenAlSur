@@ -7,7 +7,7 @@ Estado permitido: **pendiente**, **generado**, **normalizado**, **integrado** o 
 | Asset | Ruta prevista | Lienzo | Visible | Perspectiva | Estado |
 | --- | --- | --- | --- | --- | --- |
 | Coche del Tren al Sur | `public/assets/trains/tren-al-sur/coach-exterior.png` | 640×192 | 600×140 aprox. | lateral 2D | integrado; calibración física pendiente |
-| Oficina AFF de época | `public/assets/stations/retiro/aff-office.png` | 256×192 | 240×180 | frontal superior | pendiente |
+| Oficina AFF de época | `public/assets/stations/retiro/aff-office-exterior.png` | 288×192 | 164×90 aprox. | frontal superior | integrado; calibración física pendiente |
 | Marquesina del andén | `public/assets/stations/retiro/platform-canopy.png` | 1200×160 | 1100×140 | frontal superior | pendiente |
 | Columnas de hierro | `public/assets/stations/retiro/iron-column.png` | 48×240 | 32×220 | frontal | pendiente |
 | Piso modular del hall | `public/assets/stations/retiro/hall-floor.png` | 48×40 | 48×40 | superior | pendiente |

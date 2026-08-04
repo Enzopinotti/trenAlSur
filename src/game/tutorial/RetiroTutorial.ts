@@ -17,7 +17,7 @@ import {
 
 const OBJECTIVES: Record<TutorialStep, string> = {
   [TutorialStep.TALK_TO_FOREMAN]: 'Hablá con el capataz del Tren al Sur.',
-  [TutorialStep.CHECK_AFF_BOARD]: 'Consultá el tablero de la AFF.',
+  [TutorialStep.CHECK_AFF_BOARD]: 'Consultá la oficina de la AFF.',
   [TutorialStep.RETURN_TO_TRAIN]: 'Volvé a la puerta del Tren al Sur.',
   [TutorialStep.COMPLETED]: 'El Tren al Sur está listo para partir.',
 };

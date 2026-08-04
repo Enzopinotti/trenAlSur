@@ -61,8 +61,7 @@ export default class MenuScene extends Phaser.Scene {
   private select() {
     if (this.selected === 0) {
       this.scene.start('WorldScene', {
-        day: 1,
-        season: RETIRO_CONFIG.defaultSeason,
+        kind: 'newGame',
       });
       return;
     }
@@ -81,7 +80,7 @@ export default class MenuScene extends Phaser.Scene {
         return;
       }
 
-      this.scene.start('WorldScene', slot.state);
+      this.scene.start('WorldScene', { kind: 'loadedGame', ...slot.state });
     } catch (error: unknown) {
       console.error('[MenuScene] No se pudo cargar la partida:', error);
       this.toast('No se pudo cargar la partida.');

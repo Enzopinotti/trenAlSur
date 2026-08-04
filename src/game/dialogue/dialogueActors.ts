@@ -20,6 +20,11 @@ export const DIALOGUE_ACTORS: Record<DialogueActorId, DialogueActorPresentation>
     nameColor: '#48cae4',
     accentColor: 0x028090,
   },
+  affClerk: {
+    displayName: 'Empleado AFF',
+    nameColor: '#b6d8cc',
+    accentColor: 0x477b78,
+  },
   narrator: {
     displayName: 'Narrador',
     nameColor: '#e2e8f0',

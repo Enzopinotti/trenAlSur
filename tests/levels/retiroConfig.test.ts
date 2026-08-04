@@ -39,8 +39,8 @@ describe('RETIRO_CONFIG', () => {
     expect(PLAYER_DIRECTIONS).toContain(RETIRO_CONFIG.playerSpawn.facing);
   });
 
-  it('mantiene el tablero AFF y el coche dentro de los límites', () => {
-    expect(isInsideWorld(RETIRO_CONFIG.affTerminal)).toBe(true);
+  it('mantiene la oficina AFF y el coche dentro de los límites', () => {
+    expect(isInsideWorld(RETIRO_CONFIG.affOfficeExterior)).toBe(true);
     expect(isInsideWorld(RETIRO_CONFIG.trainCoach)).toBe(true);
   });
 });

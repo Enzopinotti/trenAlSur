@@ -51,7 +51,6 @@ export function createRetiroEnvironment(
 
   const structures = scene.add.graphics().setDepth(DEPTH.structures);
   drawMarqueeShadow(structures, config.hall);
-  drawOffice(structures, config.affOffice);
   for (const column of config.columns) {
     drawColumn(structures, column.x, column.y);
   }
@@ -100,26 +99,12 @@ export function createRetiroEnvironment(
     COLORS.warmLight,
     0.16,
   ).setDepth(DEPTH.structures + 1);
-  const affIndicator = scene.add.rectangle(
-    config.affOffice.x + 50,
-    config.affOffice.y + 50,
-    8,
-    8,
-    COLORS.warmLight,
-  ).setDepth(DEPTH.structures + 1);
-  decorations.push(lampGlow, affIndicator);
+  decorations.push(lampGlow);
   ambientTweens.push(
     scene.tweens.add({
       targets: lampGlow,
       alpha: { from: 0.1, to: 0.28 },
       duration: 1500,
-      yoyo: true,
-      repeat: -1,
-    }),
-    scene.tweens.add({
-      targets: affIndicator,
-      alpha: { from: 0.35, to: 1 },
-      duration: 900,
       yoyo: true,
       repeat: -1,
     }),
@@ -177,15 +162,6 @@ function drawMarqueeShadow(graphics: Phaser.GameObjects.Graphics, hall: RetiroRe
   graphics.fillStyle(0x1c2627, 0.24).fillRect(left, hall.y + 70, hall.width, 28);
 }
 
-function drawOffice(graphics: Phaser.GameObjects.Graphics, office: RetiroRectConfig): void {
-  const left = office.x - office.width / 2;
-  const top = office.y - office.height / 2;
-  graphics.fillStyle(COLORS.affDark).fillRect(left, top, office.width, office.height);
-  graphics.fillStyle(COLORS.aff).fillRect(left + 8, top + 8, office.width - 16, 34);
-  graphics.fillStyle(COLORS.iron).fillRect(left + 16, top + 60, office.width - 32, 12);
-  graphics.fillStyle(COLORS.brass).fillRect(left + 24, top + 92, 48, 28);
-  graphics.fillStyle(COLORS.brass).fillRect(left + 96, top + 92, 48, 28);
-}
 
 function drawColumn(graphics: Phaser.GameObjects.Graphics, x: number, y: number): void {
   graphics.fillStyle(COLORS.iron).fillRect(x - 8, y - 120, 16, 240);

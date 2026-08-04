@@ -1,6 +1,7 @@
 import type { TrainCoachConfig } from '@/game/entities/trainCoach.types';
 import type { StaticWorldEntityConfig } from '@/game/entities/worldEntity.types';
 import type { Season } from '@/game/config';
+import type { AffOfficeExteriorConfig } from '@/game/entities/affOfficeExterior.types';
 
 export interface RetiroEntityConfig extends StaticWorldEntityConfig {
   x: number;
@@ -47,7 +48,6 @@ export interface RetiroEnvironmentConfig {
   tracks: RetiroRectConfig;
   walkableAreas: readonly RetiroRectConfig[];
   collisionStructures: readonly RetiroRectConfig[];
-  affOffice: RetiroRectConfig;
   columns: readonly { x: number; y: number }[];
   props: readonly RetiroPropConfig[];
   signs: readonly RetiroSignConfig[];
@@ -64,7 +64,7 @@ export interface RetiroConfig {
     facing: 'down' | 'left' | 'right' | 'up';
   };
   foreman: RetiroEntityConfig;
-  affTerminal: RetiroEntityConfig;
+  affOfficeExterior: AffOfficeExteriorConfig;
   trainCoach: TrainCoachConfig;
   environment: RetiroEnvironmentConfig;
   camera: {

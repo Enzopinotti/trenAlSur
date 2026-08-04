@@ -1,4 +1,4 @@
-export type DialogueActorId = 'foreman' | 'aff' | 'narrator' | 'system';
+export type DialogueActorId = 'foreman' | 'aff' | 'affClerk' | 'narrator' | 'system';
 
 export interface DialogueLine {
   actorId: DialogueActorId;

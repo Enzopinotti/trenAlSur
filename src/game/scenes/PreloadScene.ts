@@ -5,7 +5,7 @@ import {
   PLAYER_SPRITESHEET,
   FOREMAN_SPRITESHEET,
   FOREMAN_PORTRAIT,
-  AFF_TERMINAL_IMAGES,
+  AFF_OFFICE_EXTERIOR_IMAGE,
   TRAIN_SOUTH_COACH_IMAGE,
 } from '@/game/assets/assetKeys';
 
@@ -61,9 +61,7 @@ export default class PreloadScene extends Phaser.Scene {
     // Retrato del capataz
     this.load.image(ASSET_KEYS.foremanPortrait, FOREMAN_PORTRAIT.url);
 
-    this.load.image(ASSET_KEYS.affTerminalIdle, AFF_TERMINAL_IMAGES.idle);
-    this.load.image(ASSET_KEYS.affTerminalActive, AFF_TERMINAL_IMAGES.active);
-    this.load.image(ASSET_KEYS.affTerminalConfirmed, AFF_TERMINAL_IMAGES.confirmed);
+    this.load.image(ASSET_KEYS.affOfficeExterior, AFF_OFFICE_EXTERIOR_IMAGE.url);
     this.load.image(ASSET_KEYS.trainSouthCoach, TRAIN_SOUTH_COACH_IMAGE.url);
   }
 

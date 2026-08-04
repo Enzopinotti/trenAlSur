@@ -10,3 +10,12 @@ export interface StaticWorldEntityConfig {
   body: StaticSpriteBodyConfig;
   interactionOffsetY?: number;
 }
+
+export interface LocalInteractionConfig {
+  localX: number;
+  localY: number;
+  interactionOffsetX: number;
+  interactionOffsetY: number;
+  interactionRadius: number;
+  interactionLabel: string;
+}
