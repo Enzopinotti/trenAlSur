@@ -16,5 +16,10 @@ describe('configuración exterior de la oficina AFF', () => {
     expect(point.x).toBeGreaterThan(0);
     expect(point.y).toBeGreaterThan(0);
   });
+  it('mantiene un radio ajustado al escalón y un retorno delante de la puerta', () => {
+    const doorY = office.y + office.door.localY * office.scale + office.door.interactionOffsetY;
+    expect(office.door.interactionRadius).toBe(28);
+    expect(office.returnPosition).toMatchObject({ x: 954, y: doorY + 38, facing: 'down' });
+  });
   it('mantiene la calibración exterior como provisoria', () => expect(office.calibrationStatus).toBe('provisional'));
 });

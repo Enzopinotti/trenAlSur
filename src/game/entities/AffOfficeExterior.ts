@@ -10,10 +10,10 @@ export class AffOfficeExterior extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this, true);
     this.setOrigin(0.5, 1);
     this.setScale(config.scale);
+    this.refreshBody();
     const body = this.body as Phaser.Physics.Arcade.StaticBody;
     body.setSize(config.body.width, config.body.height);
     body.setOffset(config.body.offsetX, config.body.offsetY);
-    this.refreshBody();
     this.setDepth(DEPTH.railwayStructure);
   }
 

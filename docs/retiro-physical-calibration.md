@@ -21,7 +21,7 @@ Los offsets de la puerta se miden desde el origen lógico `(0.5, 1)`. `TrainCoac
 
 ## Oficina AFF exterior
 
-El PNG final tiene lienzo de 288 × 192 px y transparencia fuera de la oficina. Los valores iniciales en `RETIRO_CONFIG.affOfficeExterior` excluyen los márgenes transparentes: cuerpo `150 × 26` con offset `(69, 154)`, y puerta local `(42, -34)` más offset de interacción `(0, 22)`. Son **provisorios** hasta inspección humana con F2.
+El PNG final tiene lienzo de 288 × 192 px y transparencia fuera de la oficina. Los valores iniciales en `RETIRO_CONFIG.affOfficeExterior` excluyen los márgenes transparentes: cuerpo `150 × 26` con offset `(69, 130)`, y puerta local `(4, -62)` con radio `28`. El retorno aparece 38 px delante de ese punto. Son **provisorios** hasta inspección humana con F2.
 
 - Confirmar que el cuerpo se limita al zócalo visible.
 - Confirmar alineación visual del radio de puerta y el punto de retorno.
