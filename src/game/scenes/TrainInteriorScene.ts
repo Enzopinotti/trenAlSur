@@ -13,10 +13,10 @@ import { NpcRegistry } from '@/game/npcs/npcRegistry';
 import { createNpc } from '@/game/npcs/createNpc';
 import { toNpcInteractable } from '@/game/npcs/npcInteractionAdapter';
 import { TRAIN_INTERIOR_NPCS } from '@/game/levels/trainInterior/trainInterior.npcs';
-import { CREW_INTRO, CREW_ALREADY_MET } from '@/game/dialogue/trainInterior/trainInterior.dialogues';
+import { SOFIA_INTRO, SOFIA_ALREADY_MET } from '@/game/dialogue/trainInterior/trainInterior.dialogues';
 
 const PLAYER_SPEED = 190;
-type TrainInteractable = Interactable<'crew' | 'trainExit'>;
+type TrainInteractable = Interactable<'sofia' | 'trainExit'>;
 
 export default class TrainInteriorScene extends Phaser.Scene {
   private entry!: TrainInteriorEntryData;
@@ -30,7 +30,7 @@ export default class TrainInteriorScene extends Phaser.Scene {
   private readonly interactions = new InteractionSystem<TrainInteractable>();
   private interactables: TrainInteractable[] = [];
   private readonly npcs = new NpcRegistry();
-  private crewFirstInteraction = true;
+  private sofiaFirstInteraction = true;
 
   constructor() {
     super('TrainInteriorScene');
@@ -41,7 +41,7 @@ export default class TrainInteriorScene extends Phaser.Scene {
       throw new Error('[TrainInteriorScene] Datos de entrada inválidos.');
     }
     this.entry = data;
-    this.crewFirstInteraction = true;
+    this.sofiaFirstInteraction = true;
     this.interactions.clear();
   }
 
@@ -53,24 +53,24 @@ export default class TrainInteriorScene extends Phaser.Scene {
     this.player = new Player(this, config.playerSpawn.x, config.playerSpawn.y);
     this.player.face(config.playerSpawn.facing);
 
-    const crew = createNpc(this, {
-      id: TRAIN_INTERIOR_NPCS.crew,
-      x: config.crew.x,
-      y: config.crew.y,
+    const sofia = createNpc(this, {
+      id: TRAIN_INTERIOR_NPCS.sofia,
+      x: config.sofia.x,
+      y: config.sofia.y,
     });
-    const crewVisual = this.add.rectangle(0, 0, 38, 60, 0x8b4513).setOrigin(0.5, 1);
-    crew.add(crewVisual);
-    this.npcs.add(crew);
+    const sofiaVisual = this.add.rectangle(0, 0, 38, 60, 0x8b4513).setOrigin(0.5, 1);
+    sofia.add(sofiaVisual);
+    this.npcs.add(sofia);
 
     this.colliders = [this.physics.add.collider(this.player, this.environment.collisionGroup)];
 
     this.interactables = [
       toNpcInteractable(
-        crew,
-        'crew',
-        'Hablar con Tripulación',
-        config.crew.interactionRadius,
-        () => ({ x: config.crew.interactionX, y: config.crew.interactionY }),
+        sofia,
+        'sofia',
+        'Hablar con Sofía',
+        config.sofia.interactionRadius,
+        () => ({ x: config.sofia.interactionX, y: config.sofia.interactionY }),
       ),
       {
         id: 'trainExit',
@@ -86,11 +86,12 @@ export default class TrainInteriorScene extends Phaser.Scene {
     this.controls = new WorldControls(this.input.keyboard);
     this.dialogue = new DialoguePanel(this);
     this.hud = new WorldHud(this);
-    this.hud.setObjective('Explorá el interior del tren.');
+    this.hud.setObjective('Recorré el vagón taller y hablá con Sofía.');
     this.debug = new WorldDebugRenderer(this);
     this.cameras.main
       .setBounds(0, 0, config.world.width, config.world.height)
-      .setRoundPixels(true);
+      .setRoundPixels(true)
+      .fadeIn(220, 0, 0, 0);
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
   }
@@ -151,22 +152,25 @@ export default class TrainInteriorScene extends Phaser.Scene {
       return;
     }
 
-    if (target.id === 'crew') {
-      const sequence = this.crewFirstInteraction ? CREW_INTRO : CREW_ALREADY_MET;
-      if (this.crewFirstInteraction) {
-        this.crewFirstInteraction = false;
+    if (target.id === 'sofia') {
+      const sequence = this.sofiaFirstInteraction ? SOFIA_INTRO : SOFIA_ALREADY_MET;
+      if (this.sofiaFirstInteraction) {
+        this.sofiaFirstInteraction = false;
       }
       dialogue.open(sequence);
     }
   }
 
   private returnToRetiro(): void {
-    this.scene.start('WorldScene', {
-      kind: 'returnedFromTrain',
-      day: this.entry.day,
-      season: this.entry.season,
-      tutorialStep: this.entry.tutorialStep,
-      player: this.entry.returnPosition,
+    this.cameras.main.fadeOut(220, 0, 0, 0);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('WorldScene', {
+        kind: 'returnedFromTrain',
+        day: this.entry.day,
+        season: this.entry.season,
+        tutorialStep: this.entry.tutorialStep,
+        player: this.entry.returnPosition,
+      });
     });
   }
 

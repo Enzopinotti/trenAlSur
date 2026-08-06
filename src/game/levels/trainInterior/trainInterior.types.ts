@@ -3,6 +3,7 @@ import type { TutorialStep } from '@/game/tutorial/retiroTutorial.types';
 import type { PlayerDirection } from '@/game/entities/Player';
 
 export interface TrainInteriorEntryData {
+  kind: 'enterTrain';
   day: number;
   season: Season;
   tutorialStep: TutorialStep;
@@ -16,20 +17,45 @@ export interface TrainInteriorRectConfig {
   height: number;
 }
 
+export interface TrainInteriorDimensions {
+  workbench: { width: number; height: number };
+  toolCabinet: { width: number; height: number };
+  smallTable: { width: number; height: number };
+  map: { width: number; height: number };
+  telegraph: { width: number; height: number };
+  window: { width: number; height: number };
+  lamp: { width: number; height: number };
+  cargoCrate: { width: number; height: number };
+  mate: { width: number; height: number };
+}
+
 export interface TrainInteriorConfig {
   world: { width: number; height: number };
   playerSpawn: { x: number; y: number; facing: PlayerDirection };
   walkableAreas: readonly TrainInteriorRectConfig[];
   collisionStructures: readonly TrainInteriorRectConfig[];
-  crew: { x: number; y: number; interactionX: number; interactionY: number; interactionRadius: number };
+  sofia: { x: number; y: number; interactionX: number; interactionY: number; interactionRadius: number };
   exit: { x: number; y: number; interactionRadius: number; interactionLabel: string };
+  elements: {
+    workbench: { x: number; y: number };
+    toolCabinet: { x: number; y: number };
+    smallTable: { x: number; y: number };
+    map: { x: number; y: number };
+    telegraph: { x: number; y: number };
+    windows: Array<{ x: number; y: number }>;
+    lamp: { x: number; y: number };
+    cargoCrate: { x: number; y: number };
+    mate: { x: number; y: number };
+  };
+  dimensions: TrainInteriorDimensions;
 }
 
 export function isTrainInteriorEntryData(value: unknown): value is TrainInteriorEntryData {
   if (!isRecord(value) || !isRecord(value.returnPosition)) return false;
-  return typeof value.day === 'number'
+  return value.kind === 'enterTrain'
+    && typeof value.day === 'number'
     && typeof value.season === 'string'
-    && typeof value.tutorialStep === 'string'
+    && value.tutorialStep !== undefined
     && typeof value.returnPosition.x === 'number'
     && typeof value.returnPosition.y === 'number'
     && isDirection(value.returnPosition.facing);

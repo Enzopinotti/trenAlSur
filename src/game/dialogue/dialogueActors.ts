@@ -35,9 +35,9 @@ export const DIALOGUE_ACTORS: Record<DialogueActorId, DialogueActorPresentation>
     nameColor: '#38bdf8',
     accentColor: 0x1e3a8a,
   },
-  crew: {
-    displayName: 'Tripulación',
-    nameColor: '#f59e0b',
-    accentColor: 0x92400e,
+  sofia: {
+    displayName: 'Sofía',
+    nameColor: '#f472b6',
+    accentColor: 0x831843,
   },
 };
