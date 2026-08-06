@@ -1,57 +1,81 @@
 # Lienzo maestro de desarrollo — Tren al Sur
 
-> Documento vivo para planificar, programar, validar y registrar el desarrollo de **Tren al Sur**.
+> Fuente de verdad operativa para planificar, programar, validar y registrar el desarrollo de **Tren al Sur**.
 >
-> Última actualización inicial: 6 de agosto de 2026.
+> Última actualización: **6 de agosto de 2026**.
 >
-> Estado del documento: **activo**.
+> Estado: **activo — versión operativa 2**.
+>
+> Canon activo: **Sudamérica alternativa, año 1930**.
 
 ---
 
-## 1. Para qué existe este lienzo
+## 1. Cómo usamos este lienzo
 
-Este archivo es la fuente de verdad operativa del desarrollo. El GDD define la visión del juego; este lienzo transforma esa visión en pasos pequeños, ordenados y verificables.
+El GDD define qué juego queremos construir. Este lienzo convierte esa visión en unidades pequeñas, ordenadas y verificables.
 
-Cada vez que trabajemos desde ChatGPT, Antigravity, Devin, Windsurf u otro agente:
+Cada sesión de trabajo debe seguir este orden:
 
 1. Leer `AGENTS.md`.
-2. Leer este lienzo.
-3. Confirmar el estado real del código.
+2. Leer la unidad activa de este lienzo.
+3. Confirmar el estado real de `main`, issues, ramas y PR.
 4. Elegir **una sola unidad de trabajo**.
-5. Implementar el cambio más pequeño que complete esa unidad.
-6. Ejecutar validaciones.
-7. Actualizar este lienzo.
-8. Recién entonces preparar commit o PR.
+5. Definir qué archivos pueden cambiar.
+6. Implementar el cambio mínimo que complete la unidad.
+7. Ejecutar typecheck, tests y build.
+8. Realizar o solicitar la prueba manual correspondiente.
+9. Actualizar este lienzo.
+10. Recién entonces preparar commit, push, PR o merge.
 
-Este documento no reemplaza:
+### Regla de enfoque
 
-- el GDD;
-- los contratos TypeScript;
-- las pruebas;
-- los issues detallados;
-- la revisión manual del juego.
+No empezamos un sistema grande cuando todavía existe una unidad pequeña sin validar.
 
-Los conecta.
+### Regla de evidencia
 
----
+Una tarea sólo puede marcarse `[x]` cuando:
 
-## 2. Leyenda de estados
+- el código está en la rama objetivo;
+- las validaciones automáticas pasaron;
+- la prueba manual requerida fue realizada;
+- el cambio fue revisado;
+- el PR fue fusionado cuando corresponda.
 
-- [x] Terminado y validado.
-- [ ] Pendiente.
-- [~] En progreso.
-- [!] Bloqueado o requiere decisión.
-- [?] Requiere investigación o prueba de diseño.
-
-GitHub no renderiza `[~]`, `[!]` y `[?]` como casillas interactivas. Se usan como marcas visuales. Cuando una tarea se termina, debe transformarse en `[x]`.
+Un cambio existente sólo en una rama o PR se marca `[~]`.
 
 ---
 
-## 3. Visión que no debe perderse
+## 2. Estados
+
+- `[x]` terminado, validado y fusionado.
+- `[~]` implementado o en progreso, todavía sin cierre completo.
+- `[ ]` pendiente.
+- `[!]` bloqueado o necesita una decisión.
+- `[?]` requiere investigación o prueba de diseño.
+
+---
+
+## 3. Fuentes de verdad
+
+Orden de prioridad:
+
+1. Estado real del repositorio.
+2. `AGENTS.md`.
+3. Este lienzo.
+4. `docs/GUIA_ASSETS_Y_AMBIENTACION.md`.
+5. GDD maestro coherente con el canon de 1930.
+6. Issues y decisiones registradas.
+7. Documentos antiguos de 2025, sólo como biblioteca de ideas adaptables.
+
+Cuando dos documentos se contradicen, no se mezclan silenciosamente. Se registra una decisión.
+
+---
+
+## 4. Visión del producto
 
 ### Fantasía central
 
-Ser maquinista de un tren en una Sudamérica alternativa de 1930, recorriendo culturas, paisajes y comunidades unidas por la UFES.
+Ser maquinista de un tren en una Sudamérica alternativa de 1930, recorriendo comunidades, culturas y paisajes conectados por la Unión Ferroviaria de Estados del Sur.
 
 ### Tono
 
@@ -60,8 +84,9 @@ Ser maquinista de un tren en una Sudamérica alternativa de 1930, recorriendo cu
 - aventurero;
 - nostálgico;
 - culturalmente respetuoso;
+- con humor ligero;
 - con realismo mágico sutil;
-- sin convertir la experiencia en una simulación ferroviaria opresiva.
+- sin convertir el juego en una simulación ferroviaria opresiva.
 
 ### Pilares
 
@@ -73,13 +98,94 @@ Ser maquinista de un tren en una Sudamérica alternativa de 1930, recorriendo cu
 
 ### Regla de producto
 
-Cada sistema nuevo debe fortalecer al menos uno de estos pilares. Si no fortalece ninguno, no entra todavía.
+Cada sistema o escena nueva debe fortalecer por lo menos un pilar. Si no lo hace, queda fuera del alcance inmediato.
 
 ---
 
-## 4. Alcance por niveles
+## 5. Canon activo
 
-El GDD describe una campaña amplia Buenos Aires–Arequipa. Para poder construirla, se divide en niveles de producto.
+### Mundo
+
+- Año: 1930.
+- UFES: alianza ferroviaria supranacional fundada en 1888.
+- Ruta narrativa principal: Buenos Aires → Arequipa.
+- Misión inicial: transportar el cargamento del **Proyecto Aurora**.
+- Tecnología: vapor, electricidad temprana, telégrafo, instrumentos analógicos, papel, herramientas mecánicas.
+- Moneda y organismos reales se reemplazan por elementos ficticios cuando sea necesario.
+
+### Personajes iniciales
+
+- Protagonista: maquinista personalizable.
+- Sofía Pereyra: mecánica acompañante, 27 años, responsable del vagón-taller.
+- Guillermo Bustos: jefe de seguridad, presentación posterior.
+- Martín Santacruz: periodista paraguayo, presentación posterior.
+- Renato Córdoba: antagonista económico, presentación posterior.
+
+### Elementos prohibidos salvo reescritura de época
+
+- celulares;
+- pantallas digitales;
+- trenes bala;
+- apps o interfaces futuristas;
+- lenguaje corporativo contemporáneo;
+- marcas reales;
+- instituciones reales usadas como antagonistas directos.
+
+---
+
+## 6. Regla obligatoria para assets
+
+Todo elemento visual agregado al proyecto debe incluir dimensiones antes de ser generado por otra IA.
+
+La ficha mínima debe indicar:
+
+- asset ID;
+- escena;
+- función narrativa;
+- función jugable;
+- perspectiva;
+- canvas maestro;
+- canvas final;
+- tamaño visible;
+- posición sugerida;
+- origen o ancla;
+- hitbox;
+- offset de hitbox;
+- punto de interacción;
+- radio de interacción;
+- capa o profundidad;
+- frames o variantes;
+- formato;
+- nombre de archivo;
+- prompt;
+- negative prompt;
+- estado de calibración.
+
+Referencia completa: `docs/GUIA_ASSETS_Y_AMBIENTACION.md`.
+
+### Escala base actual
+
+- Canvas lógico: `800 × 600 px`.
+- Personaje humano: frame `64 × 96 px`.
+- Spritesheet humano: `192 × 384 px`.
+- Tamaño visible aproximado: `46 × 69 px`.
+- Hitbox del jugador: `22 × 18 px`.
+- Retrato maestro: `512 × 512 px`.
+- Retrato visible: `104 × 104 px`.
+- Exterior del coche existente: `640 × 192 px`.
+
+### Estados de calibración
+
+- `propuesto`;
+- `provisional`;
+- `validado`;
+- `reemplazar`.
+
+Ninguna medida provisional debe presentarse como medida final antes de probarla en escena.
+
+---
+
+## 7. Niveles de producto
 
 ### Nivel A — Base técnica
 
@@ -87,1209 +193,739 @@ El juego abre, carga, guarda, muestra escenas y permite mover e interactuar al j
 
 ### Nivel B — Prólogo jugable
 
-Retiro funciona como una introducción completa: capataz, oficina AFF, permiso, entrada al tren, presentación de la tripulación y cierre del prólogo.
+Retiro funciona como introducción completa: capataz, oficina AFF, permiso, entrada al tren, Sofía, preparación y salida.
 
-### Nivel C — Primera experiencia vertical
+### Nivel C — Vertical slice
 
 El jugador puede:
 
 - preparar el tren;
 - iniciar una jornada;
-- viajar por un primer tramo;
+- viajar un tramo;
 - resolver un evento;
-- detenerse en una estación;
-- comerciar o completar una entrega;
+- llegar a una estación;
+- completar una entrega o comercio;
 - descansar;
 - guardar y continuar.
 
-Este nivel debe demostrar el juego completo en pequeño.
-
 ### Nivel D — Capítulo argentino
 
-Buenos Aires, Pampa, Córdoba, Tucumán y frontera forman un capítulo coherente con la Misión 0, Misión 1 y una versión acotada de la Misión 2.
+Buenos Aires, Pampa, Córdoba, Tucumán y frontera forman un capítulo coherente.
 
-### Nivel E — MVP narrativo del GDD
+### Nivel E — MVP narrativo
 
-Ruta Buenos Aires–Arequipa, sistemas principales estabilizados, trama UFES completa, personajes centrales y finales principales.
+Buenos Aires–Arequipa, sistemas principales estabilizados, trama UFES, personajes y finales principales.
 
-No se debe construir el Nivel E directamente. Cada nivel anterior debe ser jugable y validado.
+No se construye el Nivel E directamente.
 
 ---
 
-## 5. Estado real inicial del repositorio
+## 8. Estado real del repositorio
 
-### Tecnología
+### Tecnología estable en `main`
 
 - [x] Phaser 3.
 - [x] TypeScript estricto.
 - [x] Vite.
 - [x] Arcade Physics.
-- [x] Vitest para lógica pura.
-- [x] IndexedDB para guardado.
+- [x] Vitest.
+- [x] IndexedDB.
 - [x] Eventos tipados.
-- [x] Reglas de agentes documentadas en `AGENTS.md`.
+- [x] Reglas de trabajo en `AGENTS.md`.
 
-### Flujo jugable actual
+### Flujo estable en `main`
 
 - [x] Boot.
 - [x] Preload.
 - [x] Menú.
-- [x] Escena exterior de Retiro.
-- [x] Movimiento del jugador.
-- [x] Animaciones del jugador.
-- [x] Colisiones básicas.
-- [x] HUD de objetivo.
-- [x] Sistema de diálogo.
-- [x] Sistema de interacción.
-- [x] Capataz interactivo.
-- [x] Tutorial con pasos tipados.
-- [x] Exterior de la oficina AFF.
-- [x] Interior de la oficina AFF.
-- [x] Retorno desde la oficina a Retiro.
-- [x] Guardado con migración.
+- [x] Retiro exterior.
+- [x] Movimiento y animaciones.
+- [x] Colisiones.
+- [x] HUD.
+- [x] Diálogos.
+- [x] Interacciones.
+- [x] Capataz.
+- [x] Tutorial tipado.
+- [x] Oficina AFF exterior e interior.
+- [x] Retorno desde AFF.
+- [x] Guardado y migración.
 - [x] Arquitectura base de NPCs.
-- [ ] Interior jugable del tren.
-- [ ] Transición completa Retiro → tren.
-- [ ] Tripulación principal presentada.
+- [ ] Interior del tren fusionado.
 - [ ] Primera salida ferroviaria.
-- [ ] Loop diario.
-- [ ] Inventario, carga y comercio.
+- [ ] Jornada.
+- [ ] Inventario y carga.
+- [ ] Comercio.
 - [ ] Viaje entre estaciones.
 
-### Deuda visible
+### Trabajo documental
 
-- [ ] Actualizar `README.md`, que todavía describe principalmente el starter.
-- [ ] Mantener las escenas legibles y evitar archivos excesivamente compactados.
-- [ ] Confirmar que toda escena limpia listeners, colliders, controles, HUD, tweens y suscripciones en `SHUTDOWN`.
-- [ ] Agregar CI cuando el flujo local esté estable.
-- [ ] Crear una convención para datos de escena y retornos tipados.
-- [ ] Crear una convención para contenido narrativo externo al código.
+- [~] PR #2 — `add: crear lienzo maestro de desarrollo`.
+- [~] `docs/LIENZO_MAESTRO.md`.
+- [~] `docs/GUIA_ASSETS_Y_AMBIENTACION.md`.
+- [ ] Revisar PR #2.
+- [ ] Fusionar PR #2.
+
+### Trabajo jugable
+
+- [~] Issue #1 — primera escena interior.
+- [~] PR #4 — `add: crear primera escena interior del tren`.
+- [~] Rama `feature/train-interior-scene`.
+- [~] Dos commits por encima de `main`.
+- [~] Sofía reemplaza al NPC genérico.
+- [~] Layout placeholder del vagón-taller.
+- [~] Dimensiones centralizadas.
+- [~] Datos de entrada discriminados.
+- [~] Transición corregida desde `RETURN_TO_TRAIN`.
+- [~] Retorno tipado a Retiro.
+- [~] Pruebas nuevas agregadas.
+- [~] Typecheck, tests y build informados como correctos por la implementación.
+- [ ] Reproducir validaciones en una revisión independiente.
+- [ ] Realizar prueba manual completa.
+- [ ] Revisar código final.
+- [ ] Resolver errores encontrados.
+- [ ] Confirmar estado de merge del PR.
+- [ ] Fusionar PR #4.
+- [ ] Cerrar Issue #1.
+
+### Advertencias conocidas
+
+- El PR #4 sigue en borrador.
+- La prueba manual fue explícitamente postergada.
+- Las geometrías son placeholders, no arte final.
+- Las dimensiones del vagón-taller son provisionales.
+- El informe de implementación no reemplaza nuestra revisión.
+- El bundle genera una advertencia de tamaño; no bloquea este hito.
+- No cambiar la versión del save dentro de este hito.
 
 ---
 
-## 6. Hito activo
+# 9. UNIDAD ACTIVA
 
-# HITO 0.1 — Cerrar el prólogo de Retiro
+## U0.1 — Validar y cerrar el primer interior
 
-**Resultado esperado:** el jugador completa el trámite AFF, entra al tren, recorre un primer coche, habla con una persona de la tripulación y puede volver a Retiro.
+### Resultado esperado
 
-Issue relacionado: `#1 Crear primera escena jugable dentro del Tren al Sur`.
+El flujo completo funciona sin doble interacción, sin reiniciar el prólogo y sin perder estado:
 
-### Checklist
+`Menú → Retiro → capataz → AFF → permiso → Retiro → puerta → diálogo → vagón-taller → Sofía → salida → Retiro`
 
-- [~] Implementar `TrainInteriorScene`.
-- [~] Registrar la escena.
-- [~] Validar los datos de entrada.
-- [~] Encadenar diálogo de cierre y transición.
-- [~] Bloquear interacción durante el cambio de escena.
-- [~] Crear interior placeholder navegable.
-- [~] Agregar un NPC de tripulación mediante la arquitectura existente.
-- [~] Mostrar objetivo interior.
-- [~] Volver a Retiro sin reiniciar el prólogo.
-- [~] Agregar pruebas de lógica.
-- [~] Ejecutar typecheck, tests y build.
-- [~] Probar manualmente el flujo completo.
-- [ ] Revisar PR.
+### Rama y PR
+
+- Rama: `feature/train-interior-scene`.
+- PR: #4.
+- Issue: #1.
+- Commit más reciente revisado: `7d81eaf`.
+
+### Implementado en la rama
+
+- [~] `TrainInteriorScene`.
+- [~] Registro en `main.ts`.
+- [~] Entrada discriminada con `kind: 'enterTrain'`.
+- [~] Transición después de cerrar `DOOR_SUCCESS`.
+- [~] Fade de entrada.
+- [~] Fade de salida.
+- [~] Objetivo: `Recorré el vagón taller y hablá con Sofía.`
+- [~] Sofía como NPC.
+- [~] Diálogo inicial y reinteracción.
+- [~] Banco de trabajo.
+- [~] Armario de herramientas.
+- [~] Mesa.
+- [~] Mapa Buenos Aires–Arequipa.
+- [~] Telégrafo.
+- [~] Ventanas.
+- [~] Lámpara.
+- [~] Cajón del Proyecto Aurora.
+- [~] Mate.
+- [~] Dimensiones configuradas.
+- [~] Pruebas de configuración.
+- [~] Pruebas de entrada.
+- [~] Pruebas de retorno.
+- [~] Pruebas de transición.
+
+### Pendiente para cerrar la unidad
+
+- [ ] Revisar el diff completo del PR #4.
+- [ ] Confirmar que los tests prueban comportamiento real y no sólo objetos construidos manualmente.
+- [ ] Revisar validadores de `Season` y `TutorialStep`.
+- [ ] Revisar orden de dibujo y colisiones del entorno.
+- [ ] Revisar legibilidad de `WorldScene`.
+- [ ] Confirmar limpieza de todos los recursos en `SHUTDOWN`.
+- [ ] Reproducir:
+  - `npm run typecheck`;
+  - `npm test -- --run`;
+  - `npm run build`.
+- [ ] Probar manualmente el recorrido completo.
+- [ ] Registrar errores con pasos de reproducción.
+- [ ] Corregir errores en la misma rama.
+- [ ] Volver a ejecutar validaciones.
+- [ ] Marcar PR listo para revisión.
 - [ ] Fusionar.
-- [ ] Actualizar este lienzo con archivos, commit y decisiones.
+- [ ] Cerrar Issue #1.
+- [ ] Actualizar registro de progreso.
 
-### Criterio de terminado
+### Prueba manual
 
-No alcanza con que compile. Debe poder jugarse:
+1. Abrir el juego desde cero.
+2. Hablar con el capataz.
+3. Entrar a la oficina AFF.
+4. Completar el trámite.
+5. Volver al andén.
+6. Interactuar una sola vez con la puerta.
+7. Cerrar `DOOR_SUCCESS`.
+8. Confirmar entrada automática al vagón.
+9. Caminar por toda el área.
+10. Confirmar colisiones.
+11. Hablar con Sofía.
+12. Volver a hablar con Sofía.
+13. Salir a Retiro.
+14. Confirmar posición y orientación.
+15. Confirmar que no reaparece la introducción.
+16. Volver a entrar al tren.
+17. Confirmar que no quedan teclas, prompts o diálogos duplicados.
 
-`Menú → Retiro → capataz → AFF → permiso → Retiro → puerta del tren → diálogo → interior → tripulación → salida → Retiro`
+### Evidencia a registrar
 
----
+- resultado por paso;
+- capturas si hay problemas visuales;
+- error de consola;
+- coordenadas aproximadas;
+- comportamiento esperado;
+- comportamiento observado.
 
-## 7. Mapa general de dependencias
+### Criterio de cierre
 
-```text
-Base técnica
-  └── Navegación entre escenas
-        ├── Prólogo de Retiro
-        ├── Tren como espacio persistente
-        └── Estaciones reutilizables
-              └── Sistema de jornada
-                    ├── Estado del tren
-                    ├── Inventario y carga
-                    ├── Comercio
-                    ├── Misiones
-                    └── Relaciones
-                          └── Viaje y eventos
-                                └── Capítulos regionales
-```
+No cerrar por compilar. Sólo cerrar cuando:
 
-No implementar un sistema ubicado abajo del árbol sin antes definir el contrato mínimo de sus dependencias.
-
----
-
-# 8. Roadmap técnico y jugable
-
-## FASE 0 — Disciplina de proyecto y documentación
-
-### Objetivo
-
-Tener una forma consistente de trabajar, revisar y continuar el desarrollo entre personas y agentes.
-
-### Tareas
-
-- [x] Crear `AGENTS.md`.
-- [x] Definir prefijos de commits `add:` y `fix:`.
-- [x] Definir validaciones obligatorias.
-- [x] Crear este lienzo maestro.
-- [ ] Actualizar `README.md` con:
-  - visión breve;
-  - estado actual;
-  - controles;
-  - instalación;
-  - estructura real;
-  - scripts;
-  - enlace al lienzo;
-  - enlace al GDD o ubicación de la documentación.
-- [ ] Crear `docs/DECISIONES.md` cuando el registro de decisiones de este archivo supere diez entradas.
-- [ ] Crear plantilla de issue para tareas jugables.
-- [ ] Crear plantilla de PR con validaciones y prueba manual.
-- [ ] Crear GitHub Actions para:
-  - instalar;
-  - ejecutar typecheck;
-  - ejecutar tests;
-  - ejecutar build.
-- [ ] Configurar protección de `main` cuando CI exista.
-- [ ] Definir política de assets y licencias.
-
-### Criterio de terminado
-
-Una persona nueva puede abrir el repositorio, entender qué es el juego, ejecutar el proyecto y elegir la siguiente tarea sin depender de una explicación oral.
+- todas las validaciones pasan;
+- el recorrido manual pasa;
+- no hay doble interacción;
+- no hay bloqueo de movimiento;
+- no hay listeners duplicados;
+- Sofía puede interactuarse;
+- el retorno conserva estado;
+- PR #4 está fusionado.
 
 ---
 
-## FASE 1 — Prólogo jugable de Retiro
+## 10. Cola inmediata después de U0.1
 
-### Objetivo
+No comenzar una unidad posterior hasta cerrar U0.1.
 
-Convertir la introducción existente en una secuencia completa y agradable.
+### U0.2 — Calibrar el vagón-taller
 
-### 1.1 Interior del tren
+- [ ] Revisar layout en pantalla.
+- [ ] Ajustar área caminable.
+- [ ] Ajustar hitboxes.
+- [ ] Evitar superposición de mapa, mesa y mate.
+- [ ] Definir capas de oclusión.
+- [ ] Marcar cada medida como `provisional` o `validada`.
+- [ ] Actualizar la guía de assets.
+- [ ] No generar arte final hasta validar geometría.
 
-- [~] Crear escena interior inicial.
-- [~] Crear entrada y salida tipadas.
-- [~] Usar placeholders sin assets nuevos.
-- [~] Integrar NPC de tripulación.
-- [~] Integrar diálogo y objetivo.
-- [~] Limpiar recursos al cerrar escena.
+### U0.3 — Manifest de assets del vagón-taller
 
-### 1.2 Presentación de personajes del prólogo
+- [ ] Crear un manifest data-driven.
+- [ ] Asignar asset ID a cada elemento.
+- [ ] Definir ruta de archivo.
+- [ ] Definir canvas maestro y final.
+- [ ] Definir ancla e hitbox.
+- [ ] Definir prompt y negative prompt.
+- [ ] Definir variantes.
+- [ ] Definir estado de producción.
+- [ ] Crear tests del manifest.
 
-Después de estabilizar la primera escena interior:
+### U0.4 — Generar e integrar primer asset
 
-- [ ] Reemplazar el NPC genérico por **Sofía Pereyra** como primera tripulante.
-- [ ] Definir su `npcId`.
-- [ ] Crear diálogo introductorio breve.
-- [ ] Presentar su rol de mecánica sin explicar todavía todos los sistemas.
-- [ ] Agregar una interacción opcional posterior.
-- [ ] Decidir cuándo presentar a Guillermo Bustos.
-- [ ] Decidir si el Embajador aparece físicamente o mediante diálogo/cinemática.
+Primer candidato recomendado: **fondo estructural del vagón**.
 
-### 1.3 Checklist de preparación del tren
+- [ ] Generar usando la ficha aprobada.
+- [ ] Exportar PNG.
+- [ ] Integrar en preload.
+- [ ] Mantener geometría de colisión separada.
+- [ ] Comparar escala con el jugador.
+- [ ] Validar legibilidad a `800 × 600`.
+- [ ] Documentar calibración.
 
-- [ ] Diseñar una misión corta de tres acciones:
-  - revisar caldera;
-  - verificar carga oficial;
-  - confirmar señal de salida.
-- [ ] Representar cada acción mediante una interacción simple.
-- [ ] Crear una máquina de estados tipada para el checklist.
+### U0.5 — Preparación interactiva del tren
+
+- [ ] Revisar caldera.
+- [ ] Verificar carga Aurora.
+- [ ] Confirmar señal.
+- [ ] Crear estado tipado del checklist.
 - [ ] Mostrar progreso en HUD.
-- [ ] Impedir salida antes de completar los chequeos.
-- [ ] Agregar feedback de Sofía.
-- [ ] Probar reinicio de escena y carga de partida.
+- [ ] Dar feedback de Sofía.
+- [ ] Bloquear salida hasta completar.
 
-### 1.4 Cierre del prólogo
+### U0.6 — Cierre de Misión 0
 
-- [ ] Crear conversación final antes de partir.
-- [ ] Mostrar el propósito del viaje a Arequipa.
-- [ ] Introducir la UFES sin una exposición excesiva.
-- [ ] Introducir la existencia de la carga importante.
-- [ ] Sembrar el telegrama o rumor de sabotaje.
-- [ ] Mostrar silbato, humo y transición de salida.
-- [ ] Marcar Misión 0 como completada.
-- [ ] Guardar el progreso.
-- [ ] Desbloquear el siguiente hito.
-
-### Criterio de terminado de la fase
-
-Una persona que no conoce el proyecto entiende:
-
-- quién es;
-- dónde está;
-- qué es la UFES;
-- por qué debe viajar;
-- quién es Sofía;
-- cómo moverse e interactuar;
-- cuál es su objetivo inmediato.
+- [ ] Presentar propósito del viaje.
+- [ ] Introducir UFES sin exposición excesiva.
+- [ ] Sembrar telegrama de sabotaje.
+- [ ] Crear salida visual de Retiro.
+- [ ] Guardar progreso.
+- [ ] Desbloquear primer tramo.
 
 ---
+
+# 11. Roadmap general
+
+## FASE 0 — Documentación y disciplina
+
+- [x] `AGENTS.md`.
+- [x] Prefijos `add:` y `fix:`.
+- [x] Validaciones obligatorias.
+- [~] Lienzo maestro.
+- [~] Guía de assets.
+- [ ] README real.
+- [ ] Plantilla de issue.
+- [ ] Plantilla de PR.
+- [ ] CI.
+- [ ] Protección de `main`.
+- [ ] Registro separado de decisiones cuando sea necesario.
+
+## FASE 1 — Prólogo de Retiro
+
+- [~] Interior del vagón-taller.
+- [~] Sofía.
+- [ ] Calibración visual.
+- [ ] Assets iniciales.
+- [ ] Checklist de preparación.
+- [ ] Presentación de misión.
+- [ ] Telegrama.
+- [ ] Primera partida.
 
 ## FASE 2 — Tren como hogar persistente
 
-### Objetivo
+- [ ] `TrainCarId`.
+- [ ] Contrato de vagón.
+- [ ] Orden de vagones.
+- [ ] Entradas entre vagones.
+- [ ] `TrainState`.
+- [ ] Persistencia.
+- [ ] Locomotora.
+- [ ] Vagón-taller.
+- [ ] Carga oficial.
+- [ ] Pasajeros.
+- [ ] Dos vagones recorribles como prueba.
 
-Que el tren sea una estructura reutilizable y ampliable, no una única escena descartable.
+## FASE 3 — Navegación y estado global
 
-### 2.1 Modelo de composición
+- [ ] `LocationId`.
+- [ ] Tipos discriminados de ubicación.
+- [ ] Retornos tipados.
+- [ ] Fallback seguro.
+- [ ] Coordinación de fades.
+- [ ] Prevención de dobles transiciones.
+- [ ] Estado de sesión.
+- [ ] Separación entre sesión y save.
 
-- [ ] Definir `TrainCarId`.
-- [ ] Definir contrato de vagón.
-- [ ] Definir orden de vagones.
-- [ ] Definir entradas y salidas entre vagones.
-- [ ] Crear registro de vagones disponibles.
-- [ ] Decidir si cada vagón es una escena o si varios comparten una escena.
-- [?] Prototipar ambas opciones con dos vagones antes de cerrar la decisión.
-- [ ] Documentar la decisión.
+## FASE 4 — Narrativa data-driven
 
-### 2.2 Vagones mínimos
+- [ ] IDs de diálogo.
+- [ ] Contenido fuera de escenas.
+- [ ] Condiciones.
+- [ ] Flags.
+- [ ] Decisiones.
+- [ ] Misiones data-driven.
+- [ ] Diario.
+- [ ] Localización.
+- [ ] Barks regionales.
 
-- [ ] Coche de tripulación.
-- [ ] Locomotora/cabina.
-- [ ] Vagón-taller de Sofía.
-- [ ] Vagón de carga oficial.
-- [ ] Vagón de pasajeros básico.
-- [ ] Puertas entre vagones.
-- [ ] Señalización clara.
-- [ ] Colisiones coherentes.
+## FASE 5 — Tiempo y descanso
 
-### 2.3 Estado persistente del tren
-
-- [ ] Definir `TrainState`.
-- [ ] Separar estado lógico de objetos visuales.
-- [ ] Persistir:
-  - composición;
-  - integridad;
-  - combustible;
-  - agua;
-  - carga;
-  - mejoras;
-  - posición narrativa.
-- [ ] Crear valores iniciales seguros.
-- [ ] Diseñar migración de save antes de cambiar su versión.
-- [ ] Probar carga de saves anteriores.
-
-### 2.4 Interacciones ambientales
-
-- [ ] Puntos inspeccionables.
-- [ ] Descripciones narrativas.
-- [ ] Objetos que cambian según la misión.
-- [ ] Feedback visual para objetos interactivos.
-- [ ] Bloqueo correcto durante diálogos.
-- [ ] Sonidos placeholder o definitivos según disponibilidad.
-
-### Criterio de terminado
-
-El jugador puede recorrer al menos dos vagones y el juego conserva cambios lógicos del tren al salir y volver a entrar.
-
----
-
-## FASE 3 — Navegación, ubicación y estado global
-
-### Objetivo
-
-Mover al jugador entre Retiro, tren, estaciones y tramos de viaje sin perder información.
-
-### 3.1 Ubicaciones tipadas
-
-- [ ] Definir `LocationId`.
-- [ ] Definir clases de ubicación:
-  - estación exterior;
-  - edificio;
-  - interior de tren;
-  - viaje;
-  - evento.
-- [ ] Definir datos de entrada discriminados.
-- [ ] Definir retorno tipado.
-- [ ] Validar datos desconocidos en runtime.
-- [ ] Crear fallback seguro.
-
-### 3.2 Coordinación de escenas
-
-- [ ] Evaluar un `SceneFlowService` o coordinador mínimo.
-- [ ] Evitar que cada escena conozca detalles internos de todas las demás.
-- [ ] Centralizar fades y bloqueos de transición cuando exista repetición real.
-- [ ] Probar transiciones rápidas y dobles interacciones.
-- [ ] Probar `SHUTDOWN` y reentrada.
-
-### 3.3 Estado de sesión
-
-- [ ] Definir qué vive en el save.
-- [ ] Definir qué vive sólo durante la sesión.
-- [ ] Definir qué se reconstruye desde datos.
-- [ ] Evitar duplicar estado en escena, HUD y servicio.
-- [ ] Crear selectores o funciones puras para objetivos activos.
-
-### Criterio de terminado
-
-Agregar una nueva ubicación no requiere copiar lógica insegura de transición y retorno.
-
----
-
-## FASE 4 — Contenido narrativo basado en datos
-
-### Objetivo
-
-Evitar que todos los diálogos, objetivos y misiones queden escritos directamente dentro de escenas.
-
-### 4.1 Diálogos
-
-- [ ] Definir formato de diálogo.
-- [ ] Soportar:
-  - hablante;
-  - texto;
-  - narrador;
-  - secuencia;
-  - opciones;
-  - condiciones;
-  - efectos.
-- [ ] Mantener español rioplatense visible.
-- [ ] Mantener identificadores en inglés.
-- [ ] Validar IDs y referencias.
-- [ ] Separar contenido y ejecución.
-- [ ] Crear pruebas para condiciones y efectos.
-
-### 4.2 Misiones
-
-- [ ] Definir `QuestId`.
-- [ ] Definir estados:
-  - locked;
-  - available;
-  - active;
-  - completed;
-  - failed, sólo cuando el diseño lo requiera.
-- [ ] Definir objetivos tipados.
-- [ ] Crear funciones puras para progreso.
-- [ ] Crear journal mínimo.
-- [ ] Registrar Misión 0.
-- [ ] Registrar Misión 1 en versión acotada.
-- [ ] Guardar progreso.
-
-### 4.3 Eventos narrativos
-
-- [ ] Definir `NarrativeEventId`.
-- [ ] Definir condiciones de disparo.
-- [ ] Evitar repetir eventos únicos.
-- [ ] Permitir eventos por:
-  - ubicación;
-  - hora;
-  - misión;
-  - relación;
-  - inventario;
-  - estado del tren.
-- [ ] Registrar resultados.
-- [ ] Probar prioridad entre eventos.
-
-### 4.4 Glosario y codex
-
-- [ ] Definir entradas culturales.
-- [ ] Desbloquear entradas al descubrir términos.
-- [ ] Separar glosario de diálogo.
-- [ ] Agregar fuentes internas de revisión cultural.
-- [ ] Evitar que el glosario interrumpa el ritmo.
-
-### Criterio de terminado
-
-Se puede agregar una conversación y una misión corta modificando principalmente datos y lógica pura, sin reescribir una escena completa.
-
----
-
-## FASE 5 — Tiempo, jornada y descanso
-
-### Objetivo
-
-Implementar el ciclo cómodo que estructura cada día.
-
-### 5.1 Modelo temporal
-
-- [ ] Confirmar unidad de tiempo.
-- [ ] Definir:
-  - día;
-  - franja horaria;
-  - estación;
-  - calendario;
-  - eventos especiales.
-- [ ] Mantener el tiempo pausado durante diálogos y menús modales cuando corresponda.
-- [ ] Evitar depender de tiempo real.
-
-### 5.2 Fases de la jornada
-
-- [ ] Amanecer y parte diario.
-- [ ] Preparación.
-- [ ] Viaje.
-- [ ] Llegada.
-- [ ] Tarde libre.
-- [ ] Noche y descanso.
-- [ ] Resumen del día.
-- [ ] Autoguardado seguro.
-
-### 5.3 Clima mínimo
-
-- [ ] Definir estados simples.
-- [ ] Asociar clima a región y estación.
-- [ ] Mostrar clima en HUD o parte diario.
-- [ ] Aplicar sólo un efecto jugable inicialmente.
-- [ ] No implementar simulación meteorológica compleja.
-
-### Criterio de terminado
-
-El jugador puede completar una jornada, descansar, avanzar al día siguiente y continuar con estado persistido.
-
----
+- [ ] Hora del día.
+- [ ] Fases de jornada.
+- [ ] Pausa durante diálogos.
+- [ ] Reloj UI.
+- [ ] Descanso.
+- [ ] Guardado al dormir.
+- [ ] Calendario.
+- [ ] Estaciones.
+- [ ] Festivales.
 
 ## FASE 6 — Estado y mantenimiento del tren
 
-### Objetivo
-
-Agregar gestión relajada que genere decisiones, no castigo constante.
-
-### 6.1 Recursos básicos
-
-- [ ] Combustible.
-- [ ] Agua.
 - [ ] Integridad.
-- [ ] Capacidad de carga.
-- [ ] Moral de tripulación, sólo si aporta al primer slice.
-
-### 6.2 Consumo
-
-- [ ] Definir consumo por tramo.
-- [ ] Mostrar estimación antes de partir.
-- [ ] Alertar sin sorprender injustamente.
-- [ ] Evitar estados irrecuperables en el tutorial.
-- [ ] Permitir reabastecimiento.
-
-### 6.3 Mantenimiento
-
-- [ ] Inspección.
-- [ ] Avería menor.
-- [ ] Reparación con Sofía.
-- [ ] Repuestos.
-- [ ] Coste y beneficio comprensibles.
-- [ ] Bonificaciones futuras por origen o amistad.
-
-### 6.4 Mejoras
-
-- [ ] Definir slots o categorías.
-- [ ] Crear una mejora demostrativa.
-- [ ] Mostrar comparación antes/después.
-- [ ] Persistir mejora.
-- [ ] Evitar árbol de upgrades grande antes del vertical slice.
-
-### Criterio de terminado
-
-El tren consume recursos durante un trayecto y el jugador puede prepararlo, detectar un problema y resolver una avería simple.
-
----
+- [ ] Agua.
+- [ ] Carbón.
+- [ ] Presión.
+- [ ] Frenos.
+- [ ] Averías.
+- [ ] Reparaciones.
+- [ ] Mejoras.
+- [ ] Feedback no opresivo.
 
 ## FASE 7 — Inventario, carga y comercio
 
-### Objetivo
+- [ ] IDs de ítems.
+- [ ] Inventario.
+- [ ] Slots.
+- [ ] Carga.
+- [ ] Precios.
+- [ ] Compra.
+- [ ] Venta.
+- [ ] Entregas.
+- [ ] Productos culturales.
+- [ ] Integración con guardado.
 
-Crear el primer loop económico de comprar, transportar, entregar y vender.
+## FASE 8 — Viaje Buenos Aires–Córdoba
 
-### 7.1 Inventario
-
-- [ ] Definir `ItemId`.
-- [ ] Definir categorías.
-- [ ] Definir stack.
-- [ ] Definir peso o volumen.
-- [ ] Definir cantidad.
-- [ ] Definir items de misión no vendibles.
-- [ ] Persistir inventario.
-- [ ] Probar inventario vacío, lleno y datos desconocidos.
-
-### 7.2 Carga ferroviaria
-
-- [ ] Definir capacidad por vagón.
-- [ ] Diferenciar carga oficial y comercial.
-- [ ] Bloquear descarte accidental de carga crítica.
-- [ ] Mostrar espacio usado.
-- [ ] Crear reorganización simple.
-- [ ] Dejar animales y cargas frágiles para una fase posterior.
-
-### 7.3 Mercado
-
-- [ ] Definir precios base por estación.
-- [ ] Crear compra.
-- [ ] Crear venta.
-- [ ] Mostrar margen de forma comprensible.
-- [ ] Agregar pistas de demanda.
-- [ ] Evitar mercado dinámico complejo inicialmente.
-- [ ] Persistir dinero y cambios necesarios.
-
-### 7.4 Primera entrega
-
-- [ ] Correspondencia Buenos Aires → Córdoba o Córdoba → Tucumán.
-- [ ] Aceptar encargo.
-- [ ] Cargar item de misión.
-- [ ] Viajar.
-- [ ] Entregar.
-- [ ] Recibir dinero, reputación y diálogo.
-- [ ] Actualizar journal.
-
-### Criterio de terminado
-
-El jugador puede aceptar una carga, transportarla y entregarla en otra estación con recompensa y persistencia.
-
----
-
-## FASE 8 — Viaje ferroviario y primer tramo
-
-### Objetivo
-
-Representar el viaje sin intentar construir todavía una simulación ferroviaria completa.
-
-### 8.1 Forma de viaje
-
-- [?] Decidir entre:
-  - conducción lateral;
-  - cabina simplificada;
-  - mapa con eventos;
-  - combinación.
-- [ ] Crear prototipo de baja fidelidad.
-- [ ] Evaluar diversión, claridad y coste técnico.
-- [ ] Documentar decisión.
-- [ ] Eliminar prototipos descartados.
-
-### 8.2 Tramo Buenos Aires → Córdoba
-
-- [ ] Selección de destino.
-- [ ] Resumen de distancia y recursos.
-- [ ] Confirmación de salida.
-- [ ] Consumo de recursos.
-- [ ] Progreso visual del viaje.
-- [ ] Evento menor.
+- [ ] Mapa de ruta.
+- [ ] Primer segmento.
+- [ ] Inicio de viaje.
+- [ ] Microgestión.
+- [ ] Evento en ruta.
 - [ ] Llegada.
-- [ ] Guardado.
-- [ ] Retorno al tren y estación.
+- [ ] Primera estación reutilizable.
+- [ ] Gaucho polizón.
+- [ ] Abastecimiento en Córdoba.
 
-### 8.3 Eventos de ruta
+## FASE 9 — Vertical slice
 
-- [ ] Crear motor mínimo de eventos.
-- [ ] Un evento ambiental.
-- [ ] Un evento técnico.
-- [ ] Un evento narrativo.
-- [ ] Opciones y consecuencias.
-- [ ] Protección contra repetición inmediata.
-- [ ] Pruebas deterministas con semilla o RNG inyectable.
+- [ ] Preparar.
+- [ ] Partir.
+- [ ] Viajar.
+- [ ] Resolver evento.
+- [ ] Llegar.
+- [ ] Comerciar o entregar.
+- [ ] Socializar.
+- [ ] Descansar.
+- [ ] Guardar.
+- [ ] Continuar.
 
-### Criterio de terminado
+## FASE 10 — Relaciones
 
-El jugador sale de Buenos Aires y llega a Córdoba mediante un trayecto con consumo, al menos una decisión y una consecuencia visible.
-
----
-
-## FASE 9 — Primera vertical slice completa
-
-### Objetivo
-
-Demostrar en treinta a cuarenta y cinco minutos la identidad completa del juego.
-
-### Flujo objetivo
-
-1. Comenzar o cargar.
-2. Preparar el tren en Retiro.
-3. Hablar con Sofía.
-4. Revisar recursos.
-5. Aceptar una entrega.
-6. Partir.
-7. Resolver un evento de viaje.
-8. Llegar a Córdoba.
-9. Explorar una estación pequeña.
-10. Entregar carga.
-11. Comerciar.
-12. Tener una escena personal.
-13. Descansar.
-14. Guardar.
-15. Ver el objetivo del día siguiente.
-
-### Tareas
-
-- [ ] Integrar todos los sistemas previos.
-- [ ] Crear una estación de Córdoba de alcance controlado.
-- [ ] Crear jefe de estación.
-- [ ] Crear comerciante.
-- [ ] Crear una misión secundaria.
-- [ ] Crear un diálogo cultural revisable.
-- [ ] Crear una recompensa.
-- [ ] Crear resumen de jornada.
-- [ ] Balancear tiempos.
-- [ ] Quitar bloqueos y bugs de secuencia.
-- [ ] Probar partida nueva.
-- [ ] Probar carga.
-- [ ] Probar teclado y gamepad si ya está soportado.
-- [ ] Validar rendimiento en una PC modesta.
-
-### Criterio de terminado
-
-Una persona externa puede jugar sin asistencia, comprender la propuesta y describir por qué Tren al Sur no es solamente “un juego de caminar por estaciones”.
-
----
-
-## FASE 10 — Relaciones y personajes
-
-### Objetivo
-
-Convertir a la tripulación en el centro emocional del juego.
-
-### 10.1 Relación base
-
-- [ ] Definir `RelationshipState`.
-- [ ] Definir rango.
-- [ ] Ganar relación por:
-  - conversación;
-  - misión;
-  - elección;
-  - regalo, más adelante.
-- [ ] Evitar farmeo infinito de la misma conversación.
-- [ ] Persistir relación.
-- [ ] Mostrar feedback sutil.
-
-### 10.2 Sofía Pereyra
-
-- [ ] Presentación.
-- [ ] Conversación cotidiana.
-- [ ] Primera misión personal.
-- [ ] Escena de reparación.
-- [ ] Beneficio mecánico pequeño.
-- [ ] Primer evento de relación.
-
-### 10.3 Guillermo Bustos
-
-- [ ] Presentación.
-- [ ] Conflicto inicial.
-- [ ] Misión de seguridad.
-- [ ] Consecuencia en un evento de ruta.
-- [ ] Evolución de trato formal a confianza.
-
-### 10.4 Martín Santacruz
-
-- [ ] Presentación.
-- [ ] Función de contexto y glosario.
-- [ ] Investigación pequeña.
-- [ ] Impacto reputacional.
-- [ ] Decisión sobre revelar información.
-
-### 10.5 Elena Quispe y Renato Córdoba
-
-- [ ] Mantener fuera del primer vertical slice salvo cameo justificado.
-- [ ] Diseñar su entrada en los capítulos correspondientes.
-- [ ] Revisar representación cultural antes de producción final.
-
-### Criterio de terminado
-
-Al menos dos personajes recuerdan acciones del jugador, cambian sus diálogos y aportan una consecuencia jugable.
-
----
+- [ ] Afinidad.
+- [ ] Confianza.
+- [ ] Regalos.
+- [ ] Favores.
+- [ ] Escenas.
+- [ ] Arcos.
+- [ ] Variaciones por origen.
+- [ ] Sofía completa.
+- [ ] Guillermo.
+- [ ] Martín.
+- [ ] Elena.
+- [ ] Renato.
 
 ## FASE 11 — Capítulo argentino
 
-### Objetivo
-
-Completar una versión coherente de las primeras misiones del GDD.
-
-### Misión 0 — Partida de Buenos Aires
-
-- [ ] Prólogo completo.
-- [ ] Preparativos.
-- [ ] Ceremonia o escena de salida.
-- [ ] Carga oficial.
-- [ ] Advertencia de sabotaje.
-
-### Misión 1 — Tras los Pasos del Gaucho
-
-- [ ] Primer trayecto.
-- [ ] Polizón.
-- [ ] Elección.
-- [ ] Consecuencia con Sofía y Bustos.
-- [ ] Abastecimiento en Córdoba.
-- [ ] Correspondencia a Tucumán.
-
-### Misión 2 — Sendero al Norte, versión acotada
-
-- [ ] Puente dañado.
-- [ ] Dos opciones viables inicialmente.
-- [ ] Coste en tiempo o recursos.
-- [ ] Resolución.
-- [ ] Consecuencia registrada.
-
-### Mundo
-
-- [ ] Retiro/Buenos Aires.
+- [ ] Retiro completo.
+- [ ] Pampa.
 - [ ] Córdoba.
 - [ ] Tucumán.
-- [ ] Un tramo de Pampa.
-- [ ] Un tramo de transición al NOA.
-- [ ] NPCs regionales.
-- [ ] Bienes y precios propios.
-- [ ] Música y ambiente diferenciados.
-
-### Criterio de terminado
-
-El capítulo tiene inicio, conflicto, decisiones, progreso de sistemas y cierre que invita a continuar hacia la frontera.
-
----
+- [ ] Puente de los Suspiros.
+- [ ] Salta/Jujuy.
+- [ ] Bandoleros.
+- [ ] Frontera.
 
 ## FASE 12 — Regiones internacionales
 
-Esta fase pertenece al MVP narrativo amplio y debe abordarse después del capítulo argentino estable.
-
-### Paraguay
-
-- [ ] Definir integración exacta de la ruta con el trazado principal.
-- [ ] Asunción o estación representativa.
-- [ ] Cultura guaraní revisada.
-- [ ] Tereré, sopa paraguaya y comercio regional.
-- [ ] Martín como vínculo narrativo.
-
-### Chile
-
-- [ ] Desierto de Atacama.
-- [ ] Gestión de agua.
-- [ ] Camanchaca o evento climático.
-- [ ] Cobre/nitrato.
-- [ ] Misión de la flor del desierto.
-
-### Bolivia
-
-- [ ] Altiplano.
-- [ ] Uyuni.
-- [ ] Oruro.
-- [ ] La Paz/El Alto.
-- [ ] Altura y mate de coca.
-- [ ] Elena Quispe.
-- [ ] Carnaval e intriga.
-- [ ] Sabotaje principal.
-
-### Perú
-
-- [ ] Entrada final.
+- [ ] Paraguay.
+- [ ] Chile.
+- [ ] Bolivia.
+- [ ] Perú.
+- [ ] Climas.
+- [ ] Controles.
+- [ ] Ferias.
+- [ ] Festivales.
+- [ ] Consultoría cultural.
 - [ ] Arequipa.
-- [ ] Exposición UFES.
-- [ ] Resolución de la carga.
-- [ ] Consecuencias acumuladas.
-- [ ] Finales.
-- [ ] Epílogos.
 
-### Criterio de terminado
+## FASE 13 — Presentación
 
-Cada región se siente distinta en cultura, paisaje, economía, eventos y personajes, sin convertirse en una colección superficial de estereotipos.
-
----
-
-## FASE 13 — UI, audio, arte y presentación
-
-### Objetivo
-
-Reemplazar placeholders cuando el diseño ya esté probado.
-
-### UI
-
-- [ ] Sistema visual coherente.
-- [ ] HUD legible.
-- [ ] Journal.
-- [ ] Inventario.
-- [ ] Mercado.
-- [ ] Estado del tren.
-- [ ] Relaciones.
-- [ ] Ajustes.
-- [ ] Escalado responsive.
-- [ ] Navegación por teclado y gamepad.
-
-### Arte
-
-- [ ] Guía visual.
-- [ ] Paleta.
-- [ ] Escala de sprites.
-- [ ] Tiles.
-- [ ] Personajes.
-- [ ] Retratos.
-- [ ] Tren.
-- [ ] Estaciones.
-- [ ] Props.
-- [ ] Efectos.
-- [ ] Fondos y transiciones.
-- [ ] Inventario de licencias.
-
-### Audio
-
-- [ ] Identidad musical.
+- [ ] Dirección visual.
+- [ ] Pipeline de assets.
+- [ ] Música dinámica.
 - [ ] Ambientes.
-- [ ] Locomotora.
-- [ ] Pasos.
-- [ ] UI.
-- [ ] Voces no habladas o sonidos de diálogo.
-- [ ] Mezcla.
-- [ ] Volúmenes separados.
-- [ ] Música regional con revisión cultural.
-- [ ] Sin usar material sin licencia.
+- [ ] Cinemáticas.
+- [ ] Retratos.
+- [ ] UI final.
+- [ ] Créditos culturales.
 
-### Cinemáticas
+## FASE 14 — Accesibilidad
 
-- [ ] Definir lenguaje visual económico.
-- [ ] Intro corta.
-- [ ] Salida de Retiro.
-- [ ] Eventos de capítulo.
-- [ ] Llegada a Arequipa.
-- [ ] Epílogos.
-
-### Criterio de terminado
-
-La presentación acompaña a sistemas ya divertidos y no oculta problemas de diseño debajo de assets costosos.
-
----
-
-## FASE 14 — Accesibilidad y opciones
-
-### Objetivo
-
-Que el juego pueda ser disfrutado por la mayor cantidad de personas posible.
-
-- [ ] Remapeo de controles.
+- [ ] Remapeo.
 - [ ] Tamaño de texto.
-- [ ] Velocidad de texto.
-- [ ] Alto contraste de interacción.
-- [ ] Reducción de movimiento.
-- [ ] Control de flashes.
-- [ ] Volúmenes separados.
-- [ ] Subtítulos para todo contenido hablado.
-- [ ] Pausa segura.
-- [ ] Confirmaciones para acciones destructivas.
-- [ ] No depender sólo del color.
-- [ ] Navegación completa sin mouse cuando corresponda.
-- [ ] Modo de asistencia para eventos de precisión.
-- [ ] Revisar fuentes y legibilidad en español.
+- [ ] Contraste.
+- [ ] Slang ON/OFF.
+- [ ] Modo Historia.
+- [ ] Pausa.
+- [ ] Reducción de efectos.
+- [ ] Ayudas de interacción.
 
-### Criterio de terminado
+## FASE 15 — Calidad y lanzamiento
 
-Las opciones no son un parche final: los sistemas principales respetan pausa, foco, escalado y distintos métodos de entrada.
-
----
-
-## FASE 15 — Calidad, rendimiento y publicación
-
-### Calidad
-
-- [ ] Matriz de pruebas por sistema.
-- [ ] Smoke test de partida nueva.
-- [ ] Smoke test de carga.
-- [ ] Migraciones de save.
-- [ ] Pruebas de misiones.
-- [ ] Pruebas de economía.
-- [ ] Pruebas de relaciones.
-- [ ] Pruebas de transiciones.
-- [ ] Pruebas de inputs.
-- [ ] Pruebas de resolución.
-- [ ] Pruebas de larga duración.
-
-### Rendimiento
-
-- [ ] Medir FPS.
-- [ ] Medir memoria.
-- [ ] Revisar fugas por listeners.
-- [ ] Revisar objetos destruidos.
-- [ ] Revisar assets duplicados.
-- [ ] Limitar efectos.
-- [ ] Ajustes de calidad.
-
-### Publicación
-
-- [ ] Página del juego.
-- [ ] Build estable.
-- [ ] Política de privacidad si aplica.
+- [ ] CI.
+- [ ] Tests de migración.
+- [ ] Pruebas de rendimiento.
+- [ ] Guardados corruptos.
+- [ ] Logs seguros.
+- [ ] Builds.
 - [ ] Licencias.
-- [ ] Créditos.
-- [ ] Disclaimer histórico-cultural.
-- [ ] Reporte de bugs.
-- [ ] Versionado.
-- [ ] Changelog.
-- [ ] Estrategia de demos.
-
-### Criterio de terminado
-
-La build puede distribuirse, actualizarse y recuperar partidas sin depender del entorno del desarrollador.
+- [ ] Política de mods.
+- [ ] Demo.
+- [ ] Lanzamiento.
 
 ---
 
-# 9. Sistemas que quedan explícitamente fuera por ahora
+## 12. Fuera de alcance inmediato
 
-Hasta terminar la primera vertical slice, no priorizar:
+No implementar todavía:
 
-- multijugador;
-- backend online;
-- cuentas de usuario;
-- microservicios;
-- tienda real;
-- combate complejo;
-- árbol de habilidades grande;
-- romance completo;
-- familia;
+- combate completo;
+- romance;
+- economía continental;
 - mods;
-- Steam Workshop;
-- editor de mapas;
-- generación procedural de regiones;
-- economía global simulada;
-- conducción ferroviaria hardcore;
-- clima complejo;
-- animales con ciclo completo;
-- todos los países a la vez;
-- localización a múltiples idiomas;
-- aplicación móvil nativa.
+- Brasil, Uruguay, Ecuador, Colombia o Venezuela;
+- conducción compleja;
+- clima global;
+- calendario completo;
+- finales;
+- multijugador;
+- doblaje;
+- arte final de todo el tren.
 
-Pueden quedar documentados, pero no deben bloquear la experiencia principal.
+Se pueden documentar, pero no deben desviar U0.1.
 
 ---
 
-# 10. Contratos que conviene construir antes que contenido masivo
+## 13. Definición de terminado
 
-- [ ] `LocationId`.
-- [ ] Datos discriminados de entrada de escena.
-- [ ] Datos discriminados de retorno.
-- [ ] `TrainState`.
-- [ ] `TrainCarId`.
-- [ ] `QuestId`.
-- [ ] `QuestState`.
-- [ ] `Objective`.
-- [ ] `DialogueNode`.
-- [ ] `NarrativeEvent`.
-- [ ] `ItemId`.
-- [ ] `InventoryState`.
-- [ ] `MarketState`.
-- [ ] `RelationshipState`.
-- [ ] `TimeState`.
-- [ ] `RegionId`.
-- [ ] `StationId`.
-
-No es necesario crearlos todos ahora. Se crea cada contrato cuando una tarea real lo necesita.
-
----
-
-# 11. Definición de terminado para cada tarea
-
-Una tarea sólo puede marcarse `[x]` cuando cumple:
+Una unidad está terminada cuando:
 
 ### Código
 
-- La responsabilidad está clara.
-- No usa `any` para silenciar problemas.
-- No usa `@ts-ignore` sin aprobación.
-- No agrega dependencias sin necesidad.
-- No modifica archivos ajenos.
-- Limpia recursos de Phaser.
-- Mantiene textos visibles en español rioplatense.
+- TypeScript estricto.
+- Sin `any`.
+- Sin `@ts-ignore`.
+- Responsabilidades claras.
+- Valores mágicos evitados.
+- Recursos limpiados.
 
-### Validación automática
+### Pruebas
 
-- `npm run typecheck`
-- `npm test -- --run`
-- `npm run build`
+- Typecheck correcto.
+- Tests relevantes correctos.
+- Build correcto.
+- Prueba manual ejecutada.
 
-Cuando un comando no aplica o no puede ejecutarse, debe documentarse.
+### Juego
 
-### Validación manual
+- Flujo alcanzable.
+- Objetivo comprensible.
+- Sin bloqueo.
+- Sin interacción doble accidental.
+- Sin pérdida de estado.
+- Sin duplicación de listeners.
 
-- Se recorrió el flujo afectado.
-- Se probó una ruta normal.
-- Se probó al menos un borde razonable.
-- No aparecen dobles interacciones.
-- No se repite contenido único.
-- No se rompe volver atrás.
-- No se pierde estado.
+### Narrativa
 
-### Entrega
+- Canon 1930.
+- Texto natural.
+- Exposición breve.
+- Personajes coherentes.
+- Cultura respetuosa.
 
-- Resumen.
-- Archivos modificados.
-- Decisiones.
-- Validaciones reales.
-- Riesgos.
-- Commit sugerido.
-- Actualización de este lienzo.
+### Assets
+
+- Dimensiones documentadas.
+- Escala comparada con el jugador.
+- Hitbox separada del arte.
+- Licencia conocida.
+- Estado de calibración registrado.
+
+### GitHub
+
+- Issue enlazado.
+- Commit válido.
+- PR claro.
+- Riesgos escritos.
+- Lienzo actualizado.
 
 ---
 
-# 12. Tarjeta de trabajo para cada sesión
+## 14. Tarjeta de unidad
 
-Copiar esta plantilla en un issue o en el chat.
+Copiar esta plantilla al iniciar una tarea:
 
 ```md
-## Unidad de trabajo
+# Ux.x — Nombre
 
-### Objetivo
-Una oración que describa el resultado jugable o técnico.
+## Resultado esperado
 
-### Estado inicial confirmado
-Qué existe hoy y qué falta.
+## Estado actual
 
-### Alcance
-- Cambio 1
-- Cambio 2
-- Cambio 3
+## Rama / issue / PR
 
-### Fuera de alcance
-- Sistema relacionado que no se implementará todavía.
+## Archivos permitidos
 
-### Archivos previstos
-- `ruta`: motivo.
+## Fuera de alcance
 
-### Criterios de aceptación
-- [ ] Criterio observable 1.
-- [ ] Criterio observable 2.
-- [ ] Criterio observable 3.
+## Pasos
 
-### Pruebas
-- [ ] Typecheck.
-- [ ] Tests.
-- [ ] Build.
-- [ ] Flujo manual.
+- [ ] ...
 
-### Entrega
-- [ ] Código.
-- [ ] Resumen.
-- [ ] Lienzo actualizado.
+## Validaciones
+
+- [ ] typecheck
+- [ ] tests
+- [ ] build
+- [ ] prueba manual
+
+## Assets
+
+- [ ] no aplica
+- [ ] ficha de dimensiones
+- [ ] calibración
+
+## Riesgos
+
+## Resultado
+
+## Próxima unidad
 ```
 
 ---
 
-# 13. Protocolo para programar desde ChatGPT
+## 15. Protocolo para trabajar desde ChatGPT
 
-Cuando Enzo diga “sigamos con el juego”, “codeemos” o “continuemos el lienzo”:
+Cuando el usuario diga **“sigamos con el lienzo”**:
 
-1. Revisar este archivo.
-2. Revisar issues y PRs abiertos.
-3. Revisar el estado actual de `main`.
-4. No asumir que el último cambio fue fusionado.
-5. Identificar el primer checkbox pendiente que no esté bloqueado.
-6. Proponer una unidad de trabajo acotada.
-7. Explicar archivos y riesgos.
-8. Implementar sólo con aprobación cuando sea un cambio grande.
-9. Para cambios locales claros, aplicar el cambio.
-10. Revisar diff.
-11. Ejecutar validaciones reales.
-12. Actualizar el lienzo y el issue.
-13. Sugerir commit.
-14. No marcar tareas por inferencia.
+1. Leer este archivo.
+2. Consultar estado real de GitHub.
+3. Comparar `main` con la rama activa.
+4. Elegir la primera tarea pendiente de la unidad activa.
+5. Explicar el cambio concreto.
+6. Inspeccionar archivos antes de editarlos.
+7. Trabajar en la rama correspondiente.
+8. Validar.
+9. Actualizar el lienzo.
+10. Informar:
+   - qué cambió;
+   - qué pasó;
+   - qué falta;
+   - cuál es el próximo paso.
 
-### Regla de tamaño
+### Regla de commits
 
-Una unidad de trabajo ideal:
+Sólo usar:
 
-- modifica entre uno y seis archivos;
-- puede validarse en una sesión;
-- produce un cambio observable;
-- no mezcla dos sistemas grandes;
-- deja el proyecto funcionando.
+- `add: ...`
+- `fix: ...`
 
-Cuando una tarea excede ese tamaño, dividirla.
+Mensajes en español.
 
----
+### Regla de push
 
-# 14. Cola sugerida de próximas unidades
-
-Esta cola puede cambiar según resultados reales.
-
-1. [~] Issue #1: primera escena interior del tren.
-2. [ ] Revisar y fusionar el PR de Issue #1.
-3. [ ] Actualizar README con el estado real.
-4. [ ] Reemplazar NPC placeholder por Sofía en el interior.
-5. [ ] Crear checklist de preparación del tren.
-6. [ ] Crear dos puntos inspeccionables.
-7. [ ] Crear cierre del prólogo.
-8. [ ] Diseñar contrato mínimo de ubicación.
-9. [ ] Crear prototipo de segundo vagón.
-10. [ ] Decidir arquitectura de vagones.
-11. [ ] Crear `TrainState` mínimo.
-12. [ ] Crear prototipo de parte diario.
-13. [ ] Prototipar el primer viaje Buenos Aires → Córdoba.
-14. [ ] Evaluar la forma de viaje.
-15. [ ] Implementar una entrega simple.
+No hacer commit, push, merge o cierre de issue sin autorización explícita del usuario, salvo que la instrucción activa ya lo autorice de forma clara.
 
 ---
 
-# 15. Decisiones registradas
+## 16. Decisiones registradas
 
-| Fecha | Decisión | Motivo | Impacto |
-|---|---|---|---|
-| 2026-08-06 | Usar Phaser 3, TypeScript y Vite | Stack actual del proyecto | Mantener todas las tareas compatibles |
-| 2026-08-06 | Arcade Physics para movimiento y colisiones simples | Consistencia y alcance | No introducir otro motor físico |
-| 2026-08-06 | Desarrollo incremental, una responsabilidad por cambio | Reducir regresiones y deuda | Dividir tareas grandes |
-| 2026-08-06 | El GDD es visión; este lienzo es ejecución | Evitar confundir ideas con trabajo listo | Actualizar ambos cuando cambie diseño |
-| 2026-08-06 | Construir primero un vertical slice Buenos Aires–Córdoba | Validar el loop antes de producir todo el continente | Las regiones internacionales quedan después |
-| 2026-08-06 | Placeholders antes que assets finales | Probar diseño sin encarecer iteraciones | Arte final entra después de validar sistemas |
-| 2026-08-06 | El tren debe convertirse en hogar persistente | Es central a la fantasía del juego | Diseñar navegación y estado reutilizables |
+### D-001 — Canon temporal
 
----
+El canon activo se ambienta en 1930. Los documentos de 2025 se usan sólo como biblioteca adaptable.
 
-# 16. Decisiones abiertas
+### D-002 — Primera tripulante
 
-- [!] ¿Cómo se representa el viaje principal: conducción, mapa con eventos o híbrido?
-- [!] ¿Cada vagón será una escena o varios vagones convivirán en una escena?
-- [!] ¿Cuál será la primera estación completa después de Retiro?
-- [!] ¿La primera vertical slice llegará hasta Córdoba o incluirá Tucumán?
-- [!] ¿Qué nombre definitivo tendrá la moneda UFES: Ferro, Peso UFES u otro?
-- [!] ¿Cuál es la carga oficial definitiva: Motor Aurora, planos u otra pieza?
-- [!] ¿Qué alcance tendrá la personalización del protagonista en la primera versión?
-- [!] ¿Los orígenes del protagonista entran en la vertical slice o después?
-- [!] ¿El tiempo avanza libremente en estaciones o por acciones/franjas?
-- [!] ¿Qué personajes son romanceables y en qué etapa se decide?
-- [!] ¿Qué rutas exactas justifican el paso por Paraguay y Chile dentro de la campaña?
+Sofía Pereyra reemplaza al NPC genérico del primer interior.
 
-Las decisiones abiertas no deben resolverse todas juntas. Se resuelven cuando una tarea concreta depende de ellas.
+### D-003 — Primer interior
 
----
+El primer interior es el vagón-taller de Sofía.
 
-# 17. Riesgos del proyecto
+### D-004 — Cargamento
 
-| Riesgo | Señal temprana | Respuesta |
-|---|---|---|
-| Alcance continental demasiado grande | Se crean regiones antes de cerrar el loop | Volver al vertical slice |
-| Escenas monolíticas | Una escena contiene nivel, UI, misión, diálogo y save | Extraer sólo responsabilidades reales |
-| Sistemas prematuros | Se diseñan contratos sin una tarea jugable | Crear el mínimo requerido |
-| Arte antes de diseño | Mucho asset y poco loop | Volver a placeholders |
-| Narrativa hardcodeada | Cada diálogo requiere editar escenas | Separar datos cuando haya repetición |
-| Pérdida de estado | Volver a una escena reinicia progreso | Contratos de entrada y save explícitos |
-| Dependencia de agentes | Nadie entiende lo implementado | Commits pequeños, documentación y pruebas |
-| Cultura superficial | Elementos regionales decorativos o incorrectos | Revisión, fuentes y personajes con agencia |
-| Save incompatible | Cambios de contrato rompen partidas | Versionado y migraciones |
-| Falsa sensación de avance | Muchas tareas abiertas, nada jugable | Priorizar flujo de punta a punta |
+El Proyecto Aurora se insinúa desde el prólogo mediante un cajón o elemento de carga.
+
+### D-005 — Assets
+
+Toda solicitud de asset debe incluir dimensiones, ancla, hitbox y formato.
+
+### D-006 — Validación
+
+Un cambio en PR no se considera terminado hasta pasar prueba manual y merge.
+
+### D-007 — Ritmo
+
+Se ataca una unidad por vez.
+
+### D-008 — Arte
+
+La geometría se valida antes de generar arte final.
 
 ---
 
-# 18. Registro de avances
+## 17. Riesgos
 
-Agregar una fila por unidad terminada.
+### R-001 — Mezcla de canon
 
-| Fecha | Unidad | Resultado | Commit/PR | Validaciones |
-|---|---|---|---|---|
-| 2026-08-06 | Crear lienzo maestro | Roadmap operativo inicial | Pendiente de PR documental | Revisión documental |
-| 2026-08-06 | Interior del tren | En desarrollo mediante Issue #1 | Pendiente | Pendiente |
+Mitigación: jerarquía documental y revisión de época.
+
+### R-002 — Scope creep
+
+Mitigación: unidad activa y fuera de alcance.
+
+### R-003 — Assets incompatibles
+
+Mitigación: ficha obligatoria de dimensiones.
+
+### R-004 — Tests que no prueban integración
+
+Mitigación: revisar propósito de cada test y complementar con prueba manual.
+
+### R-005 — Escenas compactadas
+
+Mitigación: priorizar legibilidad cuando se toque el archivo.
+
+### R-006 — Saves incompatibles
+
+Mitigación: no cambiar schema sin plan de migración.
+
+### R-007 — Cerrar PR prematuramente
+
+Mitigación: mantener PR en borrador hasta validación independiente.
 
 ---
 
-# 19. Preguntas para evaluar cada hito jugable
+## 18. Registro de progreso
 
-Después de cada hito, responder:
+### 6 de agosto de 2026 — Base documental
 
-1. ¿Qué pudo hacer el jugador que antes no podía?
-2. ¿Entendió qué debía hacer sin ayuda externa?
-3. ¿La acción se siente propia de Tren al Sur?
-4. ¿Hubo una decisión real o sólo una secuencia?
-5. ¿El estado sobrevivió a cambios de escena?
-6. ¿El sistema puede reutilizarse?
-7. ¿Qué parte fue aburrida o confusa?
-8. ¿Qué quedó hardcodeado y por qué?
-9. ¿Qué no deberíamos construir todavía?
-10. ¿Cuál es el siguiente cambio más pequeño con mayor impacto?
+- Creado el lienzo maestro.
+- Creada la guía de assets y ambientación.
+- Abierto PR #2.
+- Creada Epic #3.
+- Creada Issue #1.
+
+### 6 de agosto de 2026 — Primera escena interior
+
+- Creada rama `feature/train-interior-scene`.
+- Abierto PR #4 en borrador.
+- Agregada `TrainInteriorScene`.
+- Corregida la transición desde `RETURN_TO_TRAIN`.
+- Reemplazado NPC genérico por Sofía.
+- Creado layout placeholder de vagón-taller.
+- Centralizadas dimensiones.
+- Agregadas pruebas de entrada, retorno, transición y configuración.
+- Informados typecheck, tests y build correctos.
+- Prueba manual pendiente.
+- Revisión independiente pendiente.
+- PR sin fusionar.
+- Issue #1 abierta.
 
 ---
 
-# 20. Regla final
+## 19. Próxima acción exacta
 
-El objetivo no es completar casillas por cantidad.
+**No generar assets todavía.**
 
-El objetivo es que cada casilla terminada convierta a **Tren al Sur** en un juego un poco más claro, más jugable, más emotivo y más fácil de continuar.
+La próxima acción es ejecutar la tarjeta **U0.1 — Validar y cerrar el primer interior**.
+
+Primer paso:
+
+> Probar manualmente el flujo completo del PR #4 y registrar cualquier diferencia entre lo esperado y lo observado.
+
+Después de esa prueba, la siguiente sesión debe corregir únicamente los errores encontrados.
