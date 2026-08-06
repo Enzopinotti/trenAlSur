@@ -22,12 +22,20 @@ export interface ReturnedFromAffOfficeData {
   player: { x: number; y: number; facing: PlayerDirection };
 }
 
-export type WorldSceneInitData = NewGameInitData | LoadedGameInitData | ReturnedFromAffOfficeData;
+export interface ReturnedFromTrainData {
+  kind: 'returnedFromTrain';
+  day: number;
+  season: Season;
+  tutorialStep: TutorialStep;
+  player: { x: number; y: number; facing: PlayerDirection };
+}
+
+export type WorldSceneInitData = NewGameInitData | LoadedGameInitData | ReturnedFromAffOfficeData | ReturnedFromTrainData;
 
 export function isWorldSceneInitData(value: unknown): value is WorldSceneInitData {
   if (!isRecord(value) || typeof value.kind !== 'string') return false;
   if (value.kind === 'newGame') return true;
-  return isValidWorldState(value) && (value.kind === 'loadedGame' || value.kind === 'returnedFromAffOffice');
+  return isValidWorldState(value) && (value.kind === 'loadedGame' || value.kind === 'returnedFromAffOffice' || value.kind === 'returnedFromTrain');
 }
 
 function isValidWorldState(value: Record<string, unknown>): boolean {
