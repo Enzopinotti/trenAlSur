@@ -1,0 +1,46 @@
+name: Tren al Sur quality
+
+on:
+  push:
+    branches:
+      - main
+      - modernize/**
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout exacto
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Configurar Node 24.20.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "24.20.0"
+          cache: npm
+
+      - name: Instalar lockfile exacto
+        run: npm ci
+
+      - name: Validar TypeScript
+        run: npm run typecheck
+
+      - name: Ejecutar tests mantenidos
+        run: npm test -- --run
+
+      - name: Construir producción
+        run: npm run build
+
+      - name: Auditar dependencias de producción
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Medir audit completo
+        run: npm audit --audit-level=high || true
