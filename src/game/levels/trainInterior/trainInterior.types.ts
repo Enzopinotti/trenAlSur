@@ -1,5 +1,5 @@
-import type { Season } from '@/game/config';
-import type { TutorialStep } from '@/game/tutorial/retiroTutorial.types';
+import { isSeason, type Season } from '@/game/config';
+import { isTutorialStep, type TutorialStep } from '@/game/tutorial/retiroTutorial.types';
 import type { PlayerDirection } from '@/game/entities/Player';
 
 export interface TrainInteriorEntryData {
@@ -54,8 +54,8 @@ export function isTrainInteriorEntryData(value: unknown): value is TrainInterior
   if (!isRecord(value) || !isRecord(value.returnPosition)) return false;
   return value.kind === 'enterTrain'
     && typeof value.day === 'number'
-    && typeof value.season === 'string'
-    && value.tutorialStep !== undefined
+    && isSeason(value.season)
+    && isTutorialStep(value.tutorialStep)
     && typeof value.returnPosition.x === 'number'
     && typeof value.returnPosition.y === 'number'
     && isDirection(value.returnPosition.facing);
