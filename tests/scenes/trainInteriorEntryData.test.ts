@@ -45,6 +45,28 @@ describe('datos de entrada de TrainInteriorScene', () => {
     expect(isTrainInteriorEntryData(invalidData)).toBe(false);
   });
 
+  it('rechaza una estación inválida', () => {
+    const invalidData = {
+      kind: 'enterTrain' as const,
+      day: 1,
+      season: 'Monzón',
+      tutorialStep: TutorialStep.COMPLETED,
+      returnPosition: { x: 400, y: 480, facing: 'down' as const },
+    };
+    expect(isTrainInteriorEntryData(invalidData)).toBe(false);
+  });
+
+  it('rechaza un paso de tutorial inválido', () => {
+    const invalidData = {
+      kind: 'enterTrain' as const,
+      day: 1,
+      season: 'Primavera',
+      tutorialStep: 'INVALID_STEP',
+      returnPosition: { x: 400, y: 480, facing: 'down' as const },
+    };
+    expect(isTrainInteriorEntryData(invalidData)).toBe(false);
+  });
+
   it('rechaza datos con facing inválido', () => {
     const invalidData = {
       kind: 'enterTrain' as const,
