@@ -1,0 +1,38 @@
+name: Validación temporal PR4
+
+on:
+  push:
+    branches:
+      - feature/train-interior-scene
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exacto
+        uses: actions/checkout@v4
+
+      - name: Node 24.20.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.20.0"
+          cache: npm
+
+      - name: Instalar lockfile exacto
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test -- --run
+
+      - name: Build
+        run: npm run build
+
+      - name: Audit producción
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Medir audit completo
+        run: npm audit --audit-level=high || true
