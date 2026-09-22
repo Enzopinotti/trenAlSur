@@ -5,6 +5,11 @@ export enum TutorialStep {
   COMPLETED = 'COMPLETED',
 }
 
+export function isTutorialStep(value: unknown): value is TutorialStep {
+  return typeof value === 'string'
+    && Object.values(TutorialStep).some((step) => step === value);
+}
+
 export type InteractableId = 'foreman' | 'affBoard' | 'trainDoor';
 
 import type { DialogueSequence } from '@/game/dialogue/dialogue.types';
