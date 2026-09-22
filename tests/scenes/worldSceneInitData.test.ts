@@ -25,5 +25,38 @@ describe('datos de inicio de WorldScene', () => {
     };
     expect(isWorldSceneInitData(data)).toBe(true);
   });
+  it('rechaza retorno sin dirección', () => {
+    const data = {
+      kind: 'returnedFromTrain' as const,
+      day: 1,
+      season: 'Primavera',
+      tutorialStep: TutorialStep.COMPLETED,
+      player: { x: 370, y: 545 },
+    };
+    expect(isWorldSceneInitData(data)).toBe(false);
+  });
+
+  it('rechaza estación inválida', () => {
+    const data = {
+      kind: 'loadedGame' as const,
+      day: 1,
+      season: 'Monzón',
+      tutorialStep: TutorialStep.TALK_TO_FOREMAN,
+      player: { x: 1, y: 1 },
+    };
+    expect(isWorldSceneInitData(data)).toBe(false);
+  });
+
+  it('rechaza paso de tutorial inválido', () => {
+    const data = {
+      kind: 'loadedGame' as const,
+      day: 1,
+      season: 'Primavera',
+      tutorialStep: 'INVALID_STEP',
+      player: { x: 1, y: 1 },
+    };
+    expect(isWorldSceneInitData(data)).toBe(false);
+  });
+
   it('rechaza objetos ambiguos', () => expect(isWorldSceneInitData({ day: 1 })).toBe(false));
 });
