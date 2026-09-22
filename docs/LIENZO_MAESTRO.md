@@ -250,7 +250,7 @@ No se construye el Nivel E directamente.
 - [x] Retorno desde AFF.
 - [x] Guardado y migración.
 - [x] Arquitectura base de NPCs.
-- [ ] Interior del tren fusionado.
+- [x] Interior del tren fusionado.
 - [ ] Primera salida ferroviaria.
 - [ ] Jornada.
 - [ ] Inventario y carga.
@@ -267,34 +267,33 @@ No se construye el Nivel E directamente.
 
 ### Trabajo jugable
 
-- [~] Issue #1 — primera escena interior.
-- [~] PR #4 — `add: crear primera escena interior del tren`.
-- [~] Rama `feature/train-interior-scene`.
-- [~] Dos commits por encima de `main`.
-- [~] Sofía reemplaza al NPC genérico.
-- [~] Layout placeholder del vagón-taller.
-- [~] Dimensiones centralizadas.
-- [~] Datos de entrada discriminados.
-- [~] Transición corregida desde `RETURN_TO_TRAIN`.
-- [~] Retorno tipado a Retiro.
-- [~] Pruebas nuevas agregadas.
-- [~] Typecheck, tests y build informados como correctos por la implementación.
-- [ ] Reproducir validaciones en una revisión independiente.
+- [~] Issue #1 — primera escena interior; abierta sólo por prueba manual.
+- [x] PR #4 — `add: crear primera escena interior del tren` fusionado.
+- [x] Base técnica del vagón-taller integrada en `main` (`8c9fe683`).
+- [x] Sofía reemplaza al NPC genérico.
+- [x] Layout placeholder del vagón-taller.
+- [x] Dimensiones centralizadas.
+- [x] Datos de entrada discriminados.
+- [x] Validación runtime estricta de estación, paso de tutorial y dirección.
+- [x] Transición corregida desde `RETURN_TO_TRAIN`.
+- [x] Retorno tipado a Retiro.
+- [x] Pruebas de entrada, retorno, transición y configuración.
+- [x] Revisión independiente del diff.
+- [x] Node 24.20.0 + `npm ci`.
+- [x] Typecheck reproducido.
+- [x] 15/15 archivos y 89/89 tests reproducidos.
+- [x] Build reproducido.
+- [x] Audit de producción: 0 vulnerabilidades.
 - [ ] Realizar prueba manual completa.
-- [ ] Revisar código final.
-- [ ] Resolver errores encontrados.
-- [ ] Confirmar estado de merge del PR.
-- [ ] Fusionar PR #4.
 - [ ] Cerrar Issue #1.
 
 ### Advertencias conocidas
 
-- El PR #4 sigue en borrador.
-- La prueba manual fue explícitamente postergada.
+- La prueba manual sigue pendiente y mantiene Issue #1 abierta.
 - Las geometrías son placeholders, no arte final.
-- Las dimensiones del vagón-taller son provisionales.
-- El informe de implementación no reemplaza nuestra revisión.
-- El bundle genera una advertencia de tamaño; no bloquea este hito.
+- Las dimensiones del vagón-taller son provisionales hasta calibración visual.
+- El tooling histórico todavía arrastra vulnerabilidades de desarrollo; producción auditó en 0 y la modernización las trata por separado.
+- El bundle puede requerir revisión de tamaño durante la modernización; no bloquea U0.1.
 - No cambiar la versión del save dentro de este hito.
 
 ---
@@ -311,57 +310,51 @@ El flujo completo funciona sin doble interacción, sin reiniciar el prólogo y s
 
 ### Rama y PR
 
-- Rama: `feature/train-interior-scene`.
-- PR: #4.
-- Issue: #1.
-- Commit más reciente revisado: `7d81eaf`.
+- Rama histórica: `feature/train-interior-scene`.
+- PR: #4 — fusionado.
+- Issue: #1 — abierta por prueba manual.
+- Commit publicado en `main`: `8c9fe683`.
 
 ### Implementado en la rama
 
-- [~] `TrainInteriorScene`.
-- [~] Registro en `main.ts`.
-- [~] Entrada discriminada con `kind: 'enterTrain'`.
-- [~] Transición después de cerrar `DOOR_SUCCESS`.
-- [~] Fade de entrada.
-- [~] Fade de salida.
-- [~] Objetivo: `Recorré el vagón taller y hablá con Sofía.`
-- [~] Sofía como NPC.
-- [~] Diálogo inicial y reinteracción.
-- [~] Banco de trabajo.
-- [~] Armario de herramientas.
-- [~] Mesa.
-- [~] Mapa Buenos Aires–Arequipa.
-- [~] Telégrafo.
-- [~] Ventanas.
-- [~] Lámpara.
-- [~] Cajón del Proyecto Aurora.
-- [~] Mate.
-- [~] Dimensiones configuradas.
-- [~] Pruebas de configuración.
-- [~] Pruebas de entrada.
-- [~] Pruebas de retorno.
-- [~] Pruebas de transición.
+- [x] `TrainInteriorScene`.
+- [x] Registro en `main.ts`.
+- [x] Entrada discriminada con `kind: 'enterTrain'`.
+- [x] Transición después de cerrar `DOOR_SUCCESS`.
+- [x] Fade de entrada.
+- [x] Fade de salida.
+- [x] Objetivo: `Recorré el vagón taller y hablá con Sofía.`
+- [x] Sofía como NPC.
+- [x] Diálogo inicial y reinteracción.
+- [x] Banco de trabajo.
+- [x] Armario de herramientas.
+- [x] Mesa.
+- [x] Mapa Buenos Aires–Arequipa.
+- [x] Telégrafo.
+- [x] Ventanas.
+- [x] Lámpara.
+- [x] Cajón del Proyecto Aurora.
+- [x] Mate.
+- [x] Dimensiones configuradas.
+- [x] Pruebas de configuración.
+- [x] Pruebas de entrada.
+- [x] Pruebas de retorno.
+- [x] Pruebas de transición.
 
 ### Pendiente para cerrar la unidad
 
-- [ ] Revisar el diff completo del PR #4.
-- [ ] Confirmar que los tests prueban comportamiento real y no sólo objetos construidos manualmente.
-- [ ] Revisar validadores de `Season` y `TutorialStep`.
-- [ ] Revisar orden de dibujo y colisiones del entorno.
-- [ ] Revisar legibilidad de `WorldScene`.
-- [ ] Confirmar limpieza de todos los recursos en `SHUTDOWN`.
-- [ ] Reproducir:
-  - `npm run typecheck`;
-  - `npm test -- --run`;
-  - `npm run build`.
+- [x] Revisar el diff completo del PR #4.
+- [x] Revisar validadores de `Season` y `TutorialStep`.
+- [x] Endurecer dirección obligatoria en retornos AFF/tren.
+- [x] Confirmar limpieza de recursos en `SHUTDOWN`.
+- [x] Reproducir `npm run typecheck`, `npm test -- --run` y `npm run build`.
+- [x] Corregir errores de validación encontrados.
+- [x] Volver a ejecutar validaciones: 89/89 tests verdes.
+- [x] Marcar PR listo y fusionarlo.
 - [ ] Probar manualmente el recorrido completo.
-- [ ] Registrar errores con pasos de reproducción.
-- [ ] Corregir errores en la misma rama.
-- [ ] Volver a ejecutar validaciones.
-- [ ] Marcar PR listo para revisión.
-- [ ] Fusionar.
-- [ ] Cerrar Issue #1.
-- [ ] Actualizar registro de progreso.
+- [ ] Registrar cualquier problema visual/jugable real.
+- [ ] Cerrar Issue #1 sólo si el recorrido manual pasa.
+- [ ] Actualizar calibración visual después de esa prueba.
 
 ### Prueba manual
 
@@ -910,11 +903,17 @@ Mitigación: mantener PR en borrador hasta validación independiente.
 - Creado layout placeholder de vagón-taller.
 - Centralizadas dimensiones.
 - Agregadas pruebas de entrada, retorno, transición y configuración.
-- Informados typecheck, tests y build correctos.
-- Prueba manual pendiente.
-- Revisión independiente pendiente.
-- PR sin fusionar.
-- Issue #1 abierta.
+
+### 21 de septiembre de 2026 — Revisión e integración independiente
+
+- Reconciliado PR #4 contra `main`.
+- Detectada validación runtime demasiado permisiva para `season`, `tutorialStep` y retornos sin `facing`.
+- Endurecidos los validadores y agregados casos negativos.
+- Reproducidos Node 24.20.0, `npm ci`, typecheck, tests y build.
+- Resultado: 15/15 archivos y 89/89 tests verdes.
+- Audit de producción: 0 vulnerabilidades.
+- PR #4 fusionado a `main` como `8c9fe683`.
+- Issue #1 continúa abierta exclusivamente por la prueba manual jugable.
 
 ---
 
