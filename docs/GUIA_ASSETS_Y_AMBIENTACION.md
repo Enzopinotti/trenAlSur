@@ -501,50 +501,64 @@ Aunque no son assets gráficos, deben especificarse también.
 
 ## 11. Revisión del prototipo técnico actual
 
-La rama `feature/train-interior-scene` es una base útil, pero no está lista para fusionar.
+La base técnica de `feature/train-interior-scene` fue revisada independientemente y fusionada a `main` mediante PR #4.
 
-### Correcto
+### Estado técnico publicado
 
-- escena separada;
+- `TrainInteriorScene` separada;
 - uso de `Player` y `WorldControls`;
 - `InteractionSystem`;
 - `NpcRegistry`;
+- Sofía como NPC del vagón-taller;
 - retorno tipado a Retiro;
+- entrada discriminada con `kind: 'enterTrain'`;
+- validación runtime estricta de estación, paso de tutorial y dirección;
+- transición sólo después de cerrar el diálogo de éxito;
+- fade de entrada y salida;
+- dimensiones placeholder centralizadas;
 - limpieza en `SHUTDOWN`;
-- sin dependencias ni assets externos.
+- sin dependencias ni assets externos nuevos.
 
-### Bloqueos antes de aprobar
+### Evidencia automatizada
 
-1. La puerta del tren activa la entrada en `COMPLETED`, no durante la transición desde `RETURN_TO_TRAIN`.
-2. El jugador debe interactuar una segunda vez para entrar.
-3. No se agregaron los tests solicitados por el issue.
-4. `TrainInteriorEntryData` no tiene discriminante `kind`.
-5. La validación acepta cualquier string como `season` y `tutorialStep`.
-6. El NPC genérico `crew` debe reemplazarse por Sofía o justificarse narrativamente.
-7. El objetivo visible no coincide con el objetivo definido en la tarea.
-8. Las dimensiones visuales de asientos y ventanas están hardcodeadas fuera de la configuración.
-9. El placeholder representa un coche de pasajeros y no el vagón-taller definido por la narrativa.
-10. La salida a Retiro necesita transición visual y bloqueo contra llamadas repetidas.
+Revisión de septiembre de 2026:
+
+- Node 24.20.0;
+- `npm ci` verde;
+- typecheck verde;
+- 15/15 archivos y 89/89 tests verdes;
+- build verde;
+- audit de producción con 0 vulnerabilidades.
+
+### Pendiente antes de considerar el layout validado
+
+La integración técnica no convierte el placeholder en arte o geometría final.
+
+Falta la prueba manual completa del recorrido Retiro → vagón-taller → Sofía → retorno a Retiro. Hasta completar esa prueba:
+
+- Issue #1 permanece abierta;
+- las dimensiones siguen en estado `provisional`;
+- no se debe marcar ningún asset del vagón como `validado`;
+- no se debe producir arte final que dependa de una calibración visual todavía no observada.
 
 ---
 
 ## 12. Próxima unidad recomendada
 
-**Corregir y ambientar el primer interior sin incorporar todavía arte final.**
+**Validar manualmente y calibrar el interior integrado antes de incorporar arte final.**
 
 Alcance:
 
-1. corregir la transición Retiro → tren;
-2. agregar las pruebas faltantes;
-3. fortalecer validaciones y discriminantes;
-4. reemplazar `crew` por `sofia`;
-5. reescribir diálogos;
-6. convertir la geometría placeholder en layout de vagón-taller usando las dimensiones de esta guía;
-7. definir hotspots de mapa, banco y cajón Aurora;
-8. mantener los hotspots no funcionales o con texto breve si la tarea debe seguir pequeña;
-9. generar después los assets uno por uno con esta guía.
+1. ejecutar el recorrido completo desde Retiro hasta el vagón y regreso;
+2. confirmar entrada automática después del diálogo;
+3. comprobar movimiento, límites y colisiones;
+4. comprobar interacción inicial y repetida con Sofía;
+5. revisar escala, posiciones, oclusiones y legibilidad del placeholder;
+6. registrar ajustes de dimensiones necesarios;
+7. marcar medidas como `provisional` o `validada`;
+8. generar después los assets uno por uno con esta guía.
 
-No se deben producir los assets definitivos antes de validar manualmente el layout placeholder.
+No se deben producir assets definitivos antes de validar manualmente el layout placeholder.
 
 ---
 
